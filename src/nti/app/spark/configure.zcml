@@ -10,4 +10,12 @@
 
 	<include package="nti.spark" />
 
+	<!-- Externalization -->
+	<include package="nti.externalization" file="meta.zcml" />
+	<include package="nti.externalization" />
+
+	<ext:registerAutoPackageIO
+		root_interfaces=".interfaces.ISparkJob"
+		modules=".model" />
+        
 </configure>
