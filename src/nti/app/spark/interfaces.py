@@ -52,6 +52,12 @@ class ISparkJob(ILastModified, ICreated, IZContained):
     callable = interface.Attribute("Job callable")
     callable.setTaggedValue('_ext_excluded_out', True)
 
+    callable_args = interface.Attribute("Job callable arguments")
+    callable_args.setTaggedValue('_ext_excluded_out', True)
+
+    callable_kwargs = interface.Attribute("Job callable key word arguments")
+    callable_kwargs.setTaggedValue('_ext_excluded_out', True)
+
     def is_finished():
         """
         Returns whether the job is finished or has failed.

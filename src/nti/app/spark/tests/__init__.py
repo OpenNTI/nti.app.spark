@@ -20,7 +20,7 @@ class SharedConfiguringTestLayer(ZopeComponentLayer,
                                  GCLayerMixin,
                                  ConfiguringLayerMixin):
 
-    set_up_packages = ('nti.app.spark',)
+    set_up_packages = ('nti.dataserver', 'nti.app.spark',)
 
     @classmethod
     def setUp(cls):

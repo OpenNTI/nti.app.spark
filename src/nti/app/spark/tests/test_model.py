@@ -40,6 +40,8 @@ class TestModel(unittest.TestCase):
         job.state = 'Failed'
         job.creator = 'bar'
         job.callable = lambda x: x
+        job.callable_args = ()
+        job.callable_kwargs = None
         job.updateLastMod()
 
         assert_that(job, validly_provides(ILastModified))
