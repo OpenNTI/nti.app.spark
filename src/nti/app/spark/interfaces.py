@@ -50,6 +50,7 @@ class ISparkJob(ILastModified, ICreated, IZContained):
                  required=False)
 
     callable = interface.Attribute("Job callable")
+    callable.setTaggedValue('_ext_excluded_out', True)
 
     def is_finished():
         """
