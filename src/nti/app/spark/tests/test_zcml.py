@@ -7,11 +7,15 @@ from __future__ import absolute_import
 
 # pylint: disable=protected-access,too-many-public-methods
 
+from hamcrest import none
+from hamcrest import is_not
 from hamcrest import assert_that
 
 from nti.testing.matchers import verifiably_provides
 
 from zope import component
+
+from nti.app.spark import SPARK_JOBS_QUEUE
 
 from nti.app.spark.interfaces import ISparkJobQueueFactory
 
@@ -39,3 +43,4 @@ class TestZcml(nti.testing.base.ConfiguringTestBase):
         self.configure_string(ZCML_STRING)
         queue = component.getUtility(ISparkJobQueueFactory)
         assert_that(queue, verifiably_provides(ISparkJobQueueFactory))
+        assert_that(queue.get_queue(SPARK_JOBS_QUEUE), is_not(none()))
