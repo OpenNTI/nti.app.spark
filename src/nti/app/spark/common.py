@@ -10,10 +10,7 @@ from __future__ import absolute_import
 
 import zlib
 from io import BytesIO
-from datetime import datetime
 from six.moves import cPickle as pickle
-
-import isodate
 
 from zope import component
 
@@ -40,11 +37,6 @@ def get_site(site_name=None, context=None):
         site = getSite()
         site_name = site.__name__ if site is not None else None
     return site_name
-
-
-def datetime_isoformat(now=None):
-    now = now or datetime.now()
-    return isodate.datetime_isoformat(now)
 
 
 def get_creator(context):
