@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-.. $Id: model.py 124921 2017-12-14 23:09:18Z carlos.sanchez $
+.. $Id$
 """
 
 from __future__ import division

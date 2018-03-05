@@ -82,3 +82,9 @@ class ISparkJob(ILastModified, ICreated, IZContained):
         """
         Mark this job as successful.
         """
+
+
+class ISparkJobQueueFactory(interface.Interface):
+    """
+    A factory for spark job queues.
+    """

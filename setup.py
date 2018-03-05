@@ -56,6 +56,7 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
+        'nti.asynchronous',
         'nti.base',
         'nti.coremetadata',
         'nti.dublincore',
