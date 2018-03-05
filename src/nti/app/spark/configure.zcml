@@ -1,13 +1,36 @@
 <!-- -*- mode: nxml -*- -->
 <configure	xmlns="http://namespaces.zope.org/zope"
 			xmlns:i18n="http://namespaces.zope.org/i18n"
-			xmlns:zcml="http://namespaces.zope.org/zcml">
+			xmlns:ext="http://nextthought.com/ntp/ext"
+			xmlns:zcml="http://namespaces.zope.org/zcml"
+			xmlns:runner="http://nextthought.com/ntp/sparkjobrunner">
 
 	<include package="zope.component" file="meta.zcml" />
 	<include package="zope.security" file="meta.zcml" />
 	<include package="zope.component" />
 	<include package="zope.security" />
+	<include package="zope.location" />
 
+	<include package="." file="meta.zcml" />
+
+	<include package="nti.asynchronous" />
 	<include package="nti.spark" />
+
+	<!-- Externalization -->
+	<include package="nti.externalization" file="meta.zcml" />
+	<include package="nti.externalization" />
+
+	<ext:registerAutoPackageIO
+		root_interfaces=".interfaces.ISparkJob"
+		modules=".model" />
+	
+	<!-- Jobs -->
+	<configure zcml:condition="have testmode">
+		<runner:registerImmediateProcessingQueue />
+	</configure>
+
+	<configure zcml:condition="not-have testmode">
+		<runner:registerProcessingQueue />
+	</configure>
 
 </configure>
