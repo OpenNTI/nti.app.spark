@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-.. $Id: _archive.py 125639 2018-01-20 00:25:04Z josh.zuech $
+.. $Id$
 """
 
 from __future__ import division
