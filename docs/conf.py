@@ -55,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'nti.app.spark'
-copyright = u'2017, NextThought'
+copyright = u'2018, NextThought'
 author = u'NextThought'
 
 # The version info for the project you're documenting, acts as replacement for
