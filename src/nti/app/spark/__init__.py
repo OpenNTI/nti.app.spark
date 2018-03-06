@@ -15,6 +15,9 @@ from zope import component
 
 from nti.app.spark.interfaces import ISparkJobQueueFactory
 
+#: Hive Adapter
+HIVE_ADAPTER = u'hive'
+
 #: Spark Adapter
 SPARK_ADAPTER = u'spark'
 

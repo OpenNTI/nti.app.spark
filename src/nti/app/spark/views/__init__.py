@@ -14,6 +14,7 @@ from zope.location.interfaces import IContained
 
 from zope.traversing.interfaces import IPathAdapter
 
+from nti.app.spark import HIVE_ADAPTER
 from nti.app.spark import SPARK_ADAPTER
 
 #: Fetch the error of a spark job
@@ -26,6 +27,17 @@ logger = __import__('logging').getLogger(__name__)
 
 
 @interface.implementer(IPathAdapter, IContained)
+class HivePathAdapter(object):
+
+    __name__ = HIVE_ADAPTER
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+        self.__parent__ = context
+
+
+@interface.implementer(IPathAdapter, IContained)
 class SparkPathAdapter(object):
 
     __name__ = SPARK_ADAPTER
@@ -34,3 +46,8 @@ class SparkPathAdapter(object):
         self.context = context
         self.request = request
         self.__parent__ = context
+
+    def __getitem__(self, key):
+        if key == HIVE_ADAPTER:
+            return HivePathAdapter(self, self.request)
+        raise KeyError(key)
