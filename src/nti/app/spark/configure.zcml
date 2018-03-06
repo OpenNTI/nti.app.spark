@@ -26,6 +26,7 @@
 		modules=".model" />
 
 	<adapter factory=".externalization._HiveTableExternal" />
+	<adapter factory=".externalization._ArchivableHiveTimeIndexedExternal" />
 
     <!-- ACLs -->
 	<adapter factory=".acl._HiveTableACLProvider" />
