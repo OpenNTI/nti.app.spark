@@ -24,7 +24,10 @@
 	<ext:registerAutoPackageIO
 		root_interfaces=".interfaces.ISparkJob"
 		modules=".model" />
-	
+
+    <!-- ACLs -->
+	<adapter factory=".acl._HiveTableACLProvider" />
+
 	<!-- Jobs -->
 	<configure zcml:condition="have testmode">
 		<runner:registerImmediateProcessingQueue />
