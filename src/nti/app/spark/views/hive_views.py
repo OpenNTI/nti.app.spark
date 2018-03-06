@@ -21,6 +21,8 @@ from nti.app.spark.views import HivePathAdapter
 
 from nti.dataserver import authorization as nauth
 
+from nti.externalization.externalization import to_external_object
+
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
@@ -56,10 +58,7 @@ class HiveTablesView(AbstractAuthenticatedView):
         result = LocatedExternalDict()
         result[ITEMS] = items = []
         for _, table in component.getUtilitiesFor(IHiveTable):
-            items.append({
-                'database': table.database,
-                'table': table.table_name,
-            })
+            items.append(to_external_object(table))
         result[TOTAL] = result[ITEM_COUNT] = len(items)
         result.__name__ = self.request.view_name
         result.__parent__ = self.request.context

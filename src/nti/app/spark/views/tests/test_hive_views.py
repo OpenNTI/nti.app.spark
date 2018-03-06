@@ -12,9 +12,23 @@ from hamcrest import has_entries
 from hamcrest import assert_that
 from hamcrest import greater_than
 
+from zope import component
+from zope import interface
+
 from nti.app.testing.application_webtest import ApplicationLayerTest
 
 from nti.app.testing.decorators import WithSharedApplicationMockDS
+
+from nti.spark.hive import HiveTable
+
+from nti.spark.interfaces import IHiveTable
+
+
+@interface.implementer(IHiveTable)
+class FakeTable(HiveTable):
+
+    def __init__(self):
+        HiveTable.__init__(self, 'fake', 'fake')
 
 
 class TestSparkViews(ApplicationLayerTest):
@@ -25,8 +39,14 @@ class TestSparkViews(ApplicationLayerTest):
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_spark_tables(self):
-        res = self.testapp.get('/dataserver2/spark/hive/@@tables',
-                               status=200)
-        assert_that(res.json_body,
-                    has_entries('Items', has_length(greater_than(0)),
-                                'Total', greater_than(0)))
+        fake = FakeTable()
+        gsm = component.getGlobalSiteManager()
+        try:
+            gsm.registerUtility(fake, IHiveTable, '__fake__')
+            res = self.testapp.get('/dataserver2/spark/hive/@@tables',
+                                   status=200)
+            assert_that(res.json_body,
+                        has_entries('Items', has_length(greater_than(0)),
+                                    'Total', greater_than(0)))
+        finally:
+            gsm.unregisterUtility(fake, IHiveTable, '__fake__')
