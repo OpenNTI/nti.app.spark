@@ -21,14 +21,22 @@ from nti.app.testing.decorators import WithSharedApplicationMockDS
 
 from nti.spark.hive import HiveTable
 
-from nti.spark.interfaces import IHiveTable
+from nti.spark.interfaces import IArchivableHiveTimeIndexed
 
 
-@interface.implementer(IHiveTable)
+@interface.implementer(IArchivableHiveTimeIndexed)
 class FakeTable(HiveTable):
+
+    timestamp = 10
 
     def __init__(self):
         HiveTable.__init__(self, 'fake', 'fake')
+
+    def reset(self):
+        pass
+
+    def archive(self):
+        pass
 
 
 class TestHiveViews(ApplicationLayerTest):
@@ -38,7 +46,7 @@ class TestHiveViews(ApplicationLayerTest):
         fake = FakeTable()
         gsm = component.getGlobalSiteManager()
         try:
-            gsm.registerUtility(fake, IHiveTable, '__fake__')
+            gsm.registerUtility(fake, IArchivableHiveTimeIndexed, '__fake__')
             res = self.testapp.get('/dataserver2/spark/hive/@@tables',
                                    status=200)
             assert_that(res.json_body,
@@ -47,11 +55,18 @@ class TestHiveViews(ApplicationLayerTest):
 
             self.testapp.get('/dataserver2/spark/hive', status=403)
             self.testapp.get('/dataserver2/spark/hive/notfound', status=404)
-            
-            res = self.testapp.get('/dataserver2/spark/hive/fake', 
+
+            res = self.testapp.get('/dataserver2/spark/hive/fake',
                                    status=200)
             assert_that(res.json_body,
                         has_entries('database', 'fake',
-                                    'table', 'fake'))
+                                    'table', 'fake',
+                                    'timestamp', 10))
+
+            self.testapp.post('/dataserver2/spark/hive/fake/@@reset',
+                              status=204)
+
+            self.testapp.post('/dataserver2/spark/hive/fake/@@archive',
+                              status=204)
         finally:
-            gsm.unregisterUtility(fake, IHiveTable, '__fake__')
+            gsm.unregisterUtility(fake, IArchivableHiveTimeIndexed, '__fake__')
