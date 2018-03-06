@@ -77,6 +77,7 @@ setup(
         'zope.component',
         'zope.container',
         'zope.exceptions',
+        'zope.i18nmessageid',
         'zope.interface',
         'zope.lifecycleevent',
         'zope.location',

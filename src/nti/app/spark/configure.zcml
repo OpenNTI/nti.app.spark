@@ -11,10 +11,11 @@
 	<include package="zope.security" />
 	<include package="zope.location" />
 
-	<include package="." file="meta.zcml" />
-
 	<include package="nti.asynchronous" />
 	<include package="nti.spark" />
+
+	<include package="." file="meta.zcml" />
+	<include package=".views" />
 
 	<!-- Externalization -->
 	<include package="nti.externalization" file="meta.zcml" />
