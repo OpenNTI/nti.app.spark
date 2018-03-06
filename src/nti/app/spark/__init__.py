@@ -47,6 +47,9 @@ TABLE = 'table'
 #: External column
 EXTERNAL = 'external'
 
+#: Timestamp column
+TIMESTAMP = 'timestamp'
+
 logger = __import__('logging').getLogger(__name__)
 
 

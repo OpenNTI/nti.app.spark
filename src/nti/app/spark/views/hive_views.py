@@ -27,6 +27,7 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.spark.interfaces import IHiveTable
+from nti.spark.interfaces import IArchivableHiveTimeIndexed
 
 TOTAL = StandardExternalFields.TOTAL
 ITEMS = StandardExternalFields.ITEMS
@@ -74,3 +75,31 @@ class HiveTableGetView(AbstractAuthenticatedView):
 
     def __call__(self):
         return to_external_object(self.context)
+
+
+@view_config(name="reset")
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='rest',
+               request_method='POST',
+               context=IArchivableHiveTimeIndexed,
+               permission=nauth.ACT_NTI_ADMIN)
+class HiveTableResetView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        # pylint: disable=no-member
+        self.context.reset()
+        return hexc.HTTPNoContent()
+
+
+@view_config(name="archive")
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='rest',
+               request_method='POST',
+               context=IArchivableHiveTimeIndexed,
+               permission=nauth.ACT_NTI_ADMIN)
+class HiveTableArchiveView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        # pylint: disable=no-member
+        self.context.archive()
+        return hexc.HTTPNoContent()
