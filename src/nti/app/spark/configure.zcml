@@ -27,6 +27,7 @@
 
 	<adapter factory=".externalization._HiveTableExternal" />
 	<adapter factory=".externalization._ArchivableHiveTimeIndexedExternal" />
+	<adapter factory=".externalization._ArchivableHiveTimeIndexedHistoricalExternal" />
 
     <!-- ACLs -->
 	<adapter factory=".acl._HiveTableACLProvider" />

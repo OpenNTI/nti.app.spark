@@ -15,6 +15,7 @@ from nti.app.spark import TABLE
 from nti.app.spark import DATABASE
 from nti.app.spark import EXTERNAL
 from nti.app.spark import TIMESTAMP
+from nti.app.spark import TIMESTAMPS
 from nti.app.spark import HIVE_TABLE_MIMETYPE
 
 from nti.externalization.interfaces import IExternalObject
@@ -23,6 +24,7 @@ from nti.externalization.interfaces import StandardExternalFields
 
 from nti.spark.interfaces import IHiveTable
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
+from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 MIMETYPE = StandardExternalFields.MIMETYPE
 
@@ -52,4 +54,14 @@ class _ArchivableHiveTimeIndexedExternal(_HiveTableExternal):
     def toExternalObject(self, **kwargs):
         result = _HiveTableExternal.toExternalObject(self, **kwargs)
         result[TIMESTAMP] = self.table.timestamp
+        return result
+
+
+@interface.implementer(IExternalObject)
+@component.adapter(IArchivableHiveTimeIndexedHistorical)
+class _ArchivableHiveTimeIndexedHistoricalExternal(_HiveTableExternal):
+
+    def toExternalObject(self, **kwargs):
+        result = _HiveTableExternal.toExternalObject(self, **kwargs)
+        result[TIMESTAMPS] = list(self.table.timestamps or ())
         return result
