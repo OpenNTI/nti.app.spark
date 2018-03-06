@@ -1,8 +1,10 @@
 import codecs
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools import find_packages
 
 entry_points = {
     'console_scripts': [
+        "nti_spark_runner = nti.app.spark.scripts.nti_spark_runner:main",
     ],
     "z3c.autoinclude.plugin": [
         'target = nti.app',
