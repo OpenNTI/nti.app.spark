@@ -50,6 +50,9 @@ EXTERNAL = 'external'
 #: Timestamp column
 TIMESTAMP = 'timestamp'
 
+#: Timestamps column
+TIMESTAMPS = 'timestamps'
+
 logger = __import__('logging').getLogger(__name__)
 
 

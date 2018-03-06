@@ -19,18 +19,17 @@ from nti.app.testing.application_webtest import ApplicationLayerTest
 
 from nti.app.testing.decorators import WithSharedApplicationMockDS
 
-from nti.spark.hive import HiveTable
-
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
+from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 
 @interface.implementer(IArchivableHiveTimeIndexed)
-class FakeTable(HiveTable):
+class FakeTable(object):
 
     timestamp = 10
-
-    def __init__(self):
-        HiveTable.__init__(self, 'fake', 'fake')
+    external = True
+    database = 'fake'
+    table_name = 'fake_table'
 
     def reset(self):
         pass
@@ -39,34 +38,55 @@ class FakeTable(HiveTable):
         pass
 
 
+@interface.implementer(IArchivableHiveTimeIndexedHistorical)
+class FakeHistorical(FakeTable):
+
+    timestamps = (10, 11)
+    table_name = 'fake_historical'
+
+
 class TestHiveViews(ApplicationLayerTest):
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_spark_tables(self):
-        fake = FakeTable()
+        fake_table = FakeTable()
+        fake_historical = FakeHistorical()
         gsm = component.getGlobalSiteManager()
         try:
-            gsm.registerUtility(fake, IArchivableHiveTimeIndexed, '__fake__')
+            gsm.registerUtility(fake_table, IArchivableHiveTimeIndexed,
+                                'fake_table')
+            gsm.registerUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
+                                'fake_historical')
             res = self.testapp.get('/dataserver2/spark/hive/@@tables',
                                    status=200)
             assert_that(res.json_body,
-                        has_entries('Items', has_length(greater_than(0)),
-                                    'Total', greater_than(0)))
+                        has_entries('Items', has_length(greater_than(1)),
+                                    'Total', greater_than(1)))
 
             self.testapp.get('/dataserver2/spark/hive', status=403)
             self.testapp.get('/dataserver2/spark/hive/notfound', status=404)
 
-            res = self.testapp.get('/dataserver2/spark/hive/fake',
+            res = self.testapp.get('/dataserver2/spark/hive/fake_table',
                                    status=200)
             assert_that(res.json_body,
                         has_entries('database', 'fake',
-                                    'table', 'fake',
+                                    'table', 'fake_table',
                                     'timestamp', 10))
 
-            self.testapp.post('/dataserver2/spark/hive/fake/@@reset',
+            res = self.testapp.get('/dataserver2/spark/hive/fake_historical',
+                                   status=200)
+            assert_that(res.json_body,
+                        has_entries('database', 'fake',
+                                    'table', 'fake_historical',
+                                    'timestamps', [10, 11]))
+
+            self.testapp.post('/dataserver2/spark/hive/fake_table/@@reset',
                               status=204)
 
-            self.testapp.post('/dataserver2/spark/hive/fake/@@archive',
+            self.testapp.post('/dataserver2/spark/hive/fake_table/@@archive',
                               status=204)
         finally:
-            gsm.unregisterUtility(fake, IArchivableHiveTimeIndexed, '__fake__')
+            gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
+                                  'fake_table')
+            gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
+                                  'fake_historical')
