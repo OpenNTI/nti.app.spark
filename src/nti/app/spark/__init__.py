@@ -15,11 +15,15 @@ from zope import component
 
 from nti.app.spark.interfaces import ISparkJobQueueFactory
 
+# Adapters
+
 #: Hive Adapter
 HIVE_ADAPTER = u'hive'
 
 #: Spark Adapter
 SPARK_ADAPTER = u'spark'
+
+# Jobs
 
 #: Spark job NTIID Type
 SPARK_JOB = u'SparkJob'
@@ -28,6 +32,20 @@ SPARK_JOB = u'SparkJob'
 SPARK_JOBS_QUEUE = '++etc++spark++queue++jobs'
 
 QUEUE_NAMES = (SPARK_JOBS_QUEUE,)
+
+# Tables
+
+#: Hive table mimetype
+HIVE_TABLE_MIMETYPE = 'application/vnd.nextthought.hive.table'
+
+#: Database column
+DATABASE = 'database'
+
+#: Table column
+TABLE = 'table'
+
+#: External column
+EXTERNAL = 'external'
 
 logger = __import__('logging').getLogger(__name__)
 
