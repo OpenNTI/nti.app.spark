@@ -31,11 +31,7 @@ class FakeTable(HiveTable):
         HiveTable.__init__(self, 'fake', 'fake')
 
 
-class TestSparkViews(ApplicationLayerTest):
-
-    @WithSharedApplicationMockDS(testapp=True, users=True)
-    def test_spark_403(self):
-        self.testapp.get('/dataserver2/spark', status=403)
+class TestHiveViews(ApplicationLayerTest):
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_spark_tables(self):
@@ -48,5 +44,14 @@ class TestSparkViews(ApplicationLayerTest):
             assert_that(res.json_body,
                         has_entries('Items', has_length(greater_than(0)),
                                     'Total', greater_than(0)))
+
+            self.testapp.get('/dataserver2/spark/hive', status=403)
+            self.testapp.get('/dataserver2/spark/hive/notfound', status=404)
+            
+            res = self.testapp.get('/dataserver2/spark/hive/fake', 
+                                   status=200)
+            assert_that(res.json_body,
+                        has_entries('database', 'fake',
+                                    'table', 'fake'))
         finally:
             gsm.unregisterUtility(fake, IHiveTable, '__fake__')

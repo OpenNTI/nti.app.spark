@@ -63,3 +63,14 @@ class HiveTablesView(AbstractAuthenticatedView):
         result.__name__ = self.request.view_name
         result.__parent__ = self.request.context
         return result
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='GET',
+             context=IHiveTable,
+             permission=nauth.ACT_READ)
+class HiveTableGetView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        return to_external_object(self.context)
