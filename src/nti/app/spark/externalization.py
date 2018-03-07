@@ -11,7 +11,10 @@ from __future__ import absolute_import
 from zope import component
 from zope import interface
 
+from zope.component import getUtility
+
 from nti.app.spark import TABLE
+from nti.app.spark import SCHEMA
 from nti.app.spark import DATABASE
 from nti.app.spark import EXTERNAL
 from nti.app.spark import TIMESTAMP
@@ -23,6 +26,7 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.spark.interfaces import IHiveTable
+from nti.spark.interfaces import IHiveSparkInstance
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
@@ -38,9 +42,14 @@ class _HiveTableExternal(object):
     def __init__(self, table):
         self.table = table
 
+    def schema(self):
+        spark = getUtility(IHiveSparkInstance)
+        return spark.get_table_schema(self.table.table_name)
+
     def toExternalObject(self, **unused_kwargs):
         result = LocatedExternalDict()
         result[MIMETYPE] = HIVE_TABLE_MIMETYPE
+        result[SCHEMA] = self.schema()
         result[TABLE] = self.table.table_name
         result[DATABASE] = self.table.database
         result[EXTERNAL] = self.table.external
