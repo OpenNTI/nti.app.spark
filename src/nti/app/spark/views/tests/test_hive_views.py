@@ -12,8 +12,12 @@ from hamcrest import has_entries
 from hamcrest import assert_that
 from hamcrest import greater_than
 
+import fudge
+
 from zope import component
 from zope import interface
+
+from nti.app.spark.views.tests import SparkApplicationTestLayer
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
 
@@ -47,12 +51,17 @@ class FakeHistorical(FakeTable):
 
 class TestHiveViews(ApplicationLayerTest):
 
+    layer = SparkApplicationTestLayer
+
     @WithSharedApplicationMockDS(testapp=True, users=True)
-    def test_spark_tables(self):
+    @fudge.patch("nti.app.spark.externalization.getUtility")
+    def test_spark_tables(self, mock_gu):
         fake_table = FakeTable()
         fake_historical = FakeHistorical()
-        gsm = component.getGlobalSiteManager()
+        hive = fudge.Fake().provides("get_table_schema").returns({'partition': []})
+        mock_gu.is_callable().returns(hive)
         try:
+            gsm = component.getGlobalSiteManager()
             gsm.registerUtility(fake_table, IArchivableHiveTimeIndexed,
                                 'fake_table')
             gsm.registerUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,

@@ -44,6 +44,9 @@ DATABASE = 'database'
 #: Table column
 TABLE = 'table'
 
+#: Schema column
+SCHEMA = 'schema'
+
 #: External column
 EXTERNAL = 'external'
 
