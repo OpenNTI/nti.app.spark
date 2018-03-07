@@ -195,7 +195,7 @@ def job_runner(job_id):
         run_job(job)
 
 
-def queue_job(creator, site, func, args=(), kws=None):
+def queue_job(creator, func, args=(), kws=None, site=None):
     site_name = get_site(site)
     # 1. create job
     job = create_spark_job(get_creator(creator), func, args, kws)

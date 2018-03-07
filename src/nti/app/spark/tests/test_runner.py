@@ -44,7 +44,7 @@ class TestRunner(unittest.TestCase):
     def test_good_job(self):
         # run job
         with mock_dataserver.mock_db_trans():
-            job = queue_job(SYSTEM_USER_ID, None, good_job)
+            job = queue_job(SYSTEM_USER_ID, good_job)
             assert_that(job, is_not(none))
         # test status
         job_id = job.job_id
@@ -54,7 +54,7 @@ class TestRunner(unittest.TestCase):
     def test_failed_job(self):
         # run job
         with mock_dataserver.mock_db_trans():
-            job = queue_job(SYSTEM_USER_ID, "dataserver2", failed_job)
+            job = queue_job(SYSTEM_USER_ID, failed_job, site="dataserver2")
             assert_that(job, is_not(none))
         # test status
         job_id = job.job_id
