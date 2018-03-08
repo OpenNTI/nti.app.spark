@@ -58,7 +58,7 @@ class HiveTablesView(AbstractAuthenticatedView):
     def __call__(self):
         result = LocatedExternalDict()
         result[ITEMS] = items = []
-        for _, table in component.getUtilitiesFor(IHiveTable):
+        for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
             items.append(to_external_object(table))
         result[TOTAL] = result[ITEM_COUNT] = len(items)
         result.__name__ = self.request.view_name
