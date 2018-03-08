@@ -42,7 +42,7 @@ class HivePathAdapter(object):
         self.__parent__ = context
 
     def find_hive_table(self, key):
-        for _, table in component.getUtilitiesFor(IHiveTable):
+        for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
             if table.table_name.lower() == key.lower():
                 return table
         
