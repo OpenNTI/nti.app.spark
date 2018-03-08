@@ -42,12 +42,13 @@ class HivePathAdapter(object):
         self.__parent__ = context
 
     def find_hive_table(self, key):
+        key = (key or '').lower()
         for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            if table.table_name.lower() == key.lower():
+            if table.table_name.lower() == key:
                 return table
         
     def __getitem__(self, key):
-        table = self.find_hive_table(key or '')
+        table = self.find_hive_table(key)
         if table is not None:
             return table
         raise KeyError(key) if key else hexc.HTTPNotFound()
