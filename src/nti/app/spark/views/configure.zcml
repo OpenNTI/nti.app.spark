@@ -12,4 +12,12 @@
 			 factory=".SparkPathAdapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />
 
+	<adapter factory="nti.traversal.traversal.DefaultAdapterTraversable"
+			 for=".SparkPathAdapter pyramid.interfaces.IRequest" />
+
+	<adapter name="hive"
+			 for=".SparkPathAdapter pyramid.interfaces.IRequest"
+			 factory=".HivePathAdapter"
+			 provides="zope.traversing.interfaces.IPathAdapter" />
+
 </configure>

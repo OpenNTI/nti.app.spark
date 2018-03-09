@@ -63,8 +63,3 @@ class SparkPathAdapter(object):
         self.context = context
         self.request = request
         self.__parent__ = context
-
-    def __getitem__(self, key):
-        if key == HIVE_ADAPTER:
-            return HivePathAdapter(self, self.request)
-        raise KeyError(key) if key else hexc.HTTPNotFound()
