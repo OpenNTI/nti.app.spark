@@ -10,7 +10,10 @@ from __future__ import absolute_import
 
 import zlib
 from io import BytesIO
+from datetime import datetime
 from six.moves import cPickle as pickle
+
+from redis_lock import Lock as RedisLock
 
 from zope import component
 
@@ -20,7 +23,12 @@ from nti.coremetadata.interfaces import IRedisClient
 
 from nti.site.interfaces import IHostPolicyFolder
 
+from nti.spark.utils import parse_date
+
 from nti.traversal.location import find_interface
+
+#: Lock expire time 1(hr)
+DEFAULT_LOCK_EXPIRY_TIME = 3600
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -60,3 +68,16 @@ def unpickle(data):
     bio.seek(0)
     result = pickle.load(bio)
     return result
+
+
+def get_redis_lock(name, expire=DEFAULT_LOCK_EXPIRY_TIME, strict=False):
+    return RedisLock(redis_client(), name, expire, strict=strict)
+
+
+def parse_timestamp(timestamp):
+    """
+    return a datetime object from the specified timestamp
+    """
+    timestamp = parse_date(timestamp) if timestamp is not None else None
+    timestamp = datetime.now() if timestamp is None else timestamp
+    return timestamp
