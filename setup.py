@@ -70,6 +70,7 @@ setup(
         'nti.traversal',
         'nti.zodb',
         'pyramid',
+        'python-redis-lock',
         'simplejson',
         'six',
         'transaction',
