@@ -13,7 +13,7 @@ from io import BytesIO
 from datetime import datetime
 from six.moves import cPickle as pickle
 
-import redis_lock
+from redis_lock import Lock as RedisLock
 
 from zope import component
 
@@ -71,7 +71,7 @@ def unpickle(data):
 
 
 def get_redis_lock(name, expire=DEFAULT_LOCK_EXPIRY_TIME, strict=False):
-    return redis_lock.Lock(redis_client(), name, expire, strict=strict)
+    return RedisLock(redis_client(), name, expire, strict=strict)
 
 
 def parse_timestamp(timestamp):
