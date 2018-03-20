@@ -62,6 +62,7 @@ setup(
         'nti.base',
         'nti.coremetadata',
         'nti.dublincore',
+        'nti.externalization',
         'nti.ntiids',
         'nti.property',
         'nti.schema',
