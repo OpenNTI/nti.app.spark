@@ -41,24 +41,23 @@ DEFAULT_MAX_SOURCE_SIZE = 209715200  # 200mb
 class AbstractHiveUploadView(AbstractAuthenticatedView,
                              ModeledContentUploadRequestUtilsMixin):
 
-    def readInput(self, value=None):
+    def readInput(self, value=None):  # pragma: no cover
         result = super(AbstractHiveUploadView, self).readInput(value)
         return CaseInsensitiveDict(result)
 
     def max_file_length(self):
         return DEFAULT_MAX_SOURCE_SIZE
 
-    def __call__(self):
+    def create_upload_job(self, creator, target, timestamp, archive):
+        # pylint: disable=unused-variable
+        __traceback_info__ = (creator, target, timestamp, archive)
+        return None
+
+    def do_call(self, creator, timestamp, archive):
         result = LocatedExternalDict()
         result.__name__ = self.request.view_name
         result.__parent__ = self.request.context
         result[ITEMS] = items = {}
-        data = self.readInput()
-        # pylint: disable=no-member
-        creator = self.remoteUser.username
-        # parse timestamp
-        timestamp = parse_timestamp(data.get('timestamp'))
-        archive = is_true(data.get('archive', True))
         sources = get_all_sources(self.request)
         for name, source in sources.items():
             if source.length >= self.max_file_length():
@@ -76,3 +75,12 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
             items[filename] = job
         result[ITEM_COUNT] = result[TOTAL] = len(items)
         return result
+
+    def __call__(self):  # pragma: no cover
+        data = self.readInput()
+        # pylint: disable=no-member
+        creator = self.remoteUser.username
+        # get parameters
+        archive = is_true(data.get('archive', True))
+        timestamp = parse_timestamp(data.get('timestamp'))
+        return self.do_call(creator, timestamp, archive)
