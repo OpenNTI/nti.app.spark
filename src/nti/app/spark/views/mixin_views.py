@@ -19,7 +19,7 @@ from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
-from nti.app.ou.mathplacement import MessageFactory as _
+from nti.app.spark import MessageFactory as _
 
 from nti.app.spark.common import parse_timestamp
 
@@ -36,6 +36,7 @@ ITEM_COUNT = StandardExternalFields.ITEM_COUNT
 
 #: Default max source size
 DEFAULT_MAX_SOURCE_SIZE = 209715200  # 200mb
+
 
 class AbstractHiveUploadView(AbstractAuthenticatedView,
                              ModeledContentUploadRequestUtilsMixin):
