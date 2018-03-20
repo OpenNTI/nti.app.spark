@@ -10,6 +10,7 @@ from __future__ import absolute_import
 from hamcrest import is_
 from hamcrest import none
 from hamcrest import is_not
+from hamcrest import has_entry
 from hamcrest import assert_that
 
 import unittest
@@ -18,6 +19,7 @@ from nti.app.spark.interfaces import FAILED
 from nti.app.spark.interfaces import SUCCESS
 
 from nti.app.spark.runner import queue_job
+from nti.app.spark.runner import job_runner
 from nti.app.spark.runner import get_job_error
 from nti.app.spark.runner import get_job_status
 
@@ -60,3 +62,9 @@ class TestRunner(unittest.TestCase):
         job_id = job.job_id
         assert_that(get_job_status(job_id), is_(FAILED))
         assert_that(get_job_error(job_id), is_not(none()))
+
+    @mock_dataserver.WithMockDS
+    def test_missig_job(self):
+        job_runner('missing')
+        status = get_job_error('missing')
+        assert_that(status, has_entry('message', 'Job is missing'))

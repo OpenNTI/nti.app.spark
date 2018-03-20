@@ -55,7 +55,7 @@ class SparkRunnerQueueFactory(object):
             queue = RedisQueue(self._redis, name)
             utility(_context, provides=IRedisQueue, component=queue, name=name)
 
-    def _redis(self):
+    def _redis(self):  # pragma: no cover
         return component.queryUtility(IRedisClient)
 
     def get_queue(self, name):
