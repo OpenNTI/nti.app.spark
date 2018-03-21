@@ -51,9 +51,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
         return DEFAULT_MAX_SOURCE_SIZE
 
     def create_upload_job(self, creator, target, timestamp, archive):
-        # pylint: disable=unused-variable
-        __traceback_info__ = (creator, target, timestamp, archive)
-        return None
+        raise NotImplementedError()
 
     def do_call(self, creator, timestamp, archive):
         result = LocatedExternalDict()
