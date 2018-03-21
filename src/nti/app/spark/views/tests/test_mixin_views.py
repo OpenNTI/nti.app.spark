@@ -8,7 +8,6 @@ from __future__ import absolute_import
 # pylint: disable=protected-access,too-many-public-methods,arguments-differ
 
 from hamcrest import is_
-from hamcrest import none
 from hamcrest import assert_that
 from hamcrest import has_entries
 
@@ -55,5 +54,5 @@ class TestMixinViews(unittest.TestCase):
     def test_coverage(self):
         view = AbstractHiveUploadView(None)
         assert_that(view.max_file_length(), is_(DEFAULT_MAX_SOURCE_SIZE))
-        assert_that(view.create_upload_job("creator", "target", 100, True),
-                    is_(none()))
+        with self.assertRaises(NotImplementedError):
+            view.create_upload_job("creator", "target", 100, True)
