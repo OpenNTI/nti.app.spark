@@ -42,8 +42,10 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
                              ModeledContentUploadRequestUtilsMixin):
 
     def readInput(self, value=None):  # pragma: no cover
-        result = super(AbstractHiveUploadView, self).readInput(value)
-        return CaseInsensitiveDict(result)
+        result = None
+        if self.request.body:
+            result = super(AbstractHiveUploadView, self).readInput(value)
+        return CaseInsensitiveDict(result or {})
 
     def max_file_length(self):
         return DEFAULT_MAX_SOURCE_SIZE
