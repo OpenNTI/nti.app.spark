@@ -27,8 +27,8 @@ from nti.spark.utils import parse_date
 
 from nti.traversal.location import find_interface
 
-#: Lock expire time 1(hr)
-DEFAULT_LOCK_EXPIRY_TIME = 3600
+#: Lock expire time 1.5(hr)
+DEFAULT_LOCK_EXPIRY_TIME = 5400
 
 logger = __import__('logging').getLogger(__name__)
 
