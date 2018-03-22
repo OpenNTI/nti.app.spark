@@ -72,6 +72,7 @@ setup(
         'nti.zodb',
         'pyramid',
         'python-redis-lock',
+        'requests',
         'simplejson',
         'six',
         'transaction',
