@@ -42,15 +42,21 @@ class _HiveTableDecorator(AbstractAuthenticatedRequestAwareDecorator):
 
     ARCHIVE_LINKS = ('reset', 'archive')
 
+    GENERAL_LINKS = ('upload',)
+
     def _predicate(self, context, unused_result):
         # pylint: disable=too-many-function-args
         return bool(self.authenticated_userid) \
            and has_permission(ACT_READ, context, self.request)
 
+    def _generate_links(self, collection, links):
+        for lnk in collection:
+            links.append(Link(root_url, elements=('@@%s' % lnk,),
+                                  rel=lnk))
+
     def _do_decorate_external(self, context, result):
         links = result.setdefault(LINKS, [])
         root_url = self.request.url
+        self._generate_links(self.GENERAL_LINKS, links)
         if IArchivableHiveTimeIndexed.providedBy(context):
-            for lnk in self.ARCHIVE_LINKS:
-                links.append(Link(root_url, elements=('@@%s' % lnk,),
-                                  rel=lnk))
+            self._generate_links(self.ARCHIVE_LINKS, links)
