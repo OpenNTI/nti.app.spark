@@ -88,9 +88,16 @@ def parse_timestamp(timestamp):
 
 
 def save_source(source, path=None):
+    # get source filename
+    filename = getattr(source, 'filename', None)
+    filename = filename or getattr(source, 'name', None) or 'data.dat'
+    # get source data
+    source = source.data if hasattr(source, 'data') else source
+    source = source.read() if hasattr(source, 'read') else source
+    # set output path
     path = path or tempfile.mkdtemp()
-    name = os.path.split(source.filename)[1]
+    name = os.path.split(filename)[1]
     name = os.path.join(path, name)
     with open(name, "w") as fp:
-        fp.write(source.data)
+        fp.write(source)
     return extract_all(name)
