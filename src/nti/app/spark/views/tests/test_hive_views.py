@@ -17,7 +17,7 @@ import fudge
 from zope import component
 from zope import interface
 
-from nti.app.spark.views.tests import SparkApplicationTestLayer
+from nti.app.spark.tests import SparkApplicationTestLayer
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
 
