@@ -23,6 +23,10 @@ from nti.app.testing.application_webtest import ApplicationLayerTest
 
 from nti.app.testing.decorators import WithSharedApplicationMockDS
 
+from nti.cabinet.mixins import SourceFile
+
+from nti.dataserver.tests import mock_dataserver
+
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
@@ -99,3 +103,32 @@ class TestHiveViews(ApplicationLayerTest):
                                   'fake_table')
             gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
                                   'fake_historical')
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    @fudge.patch('nti.app.spark.views.hive_views.create_generic_table_upload_job',
+                 'nti.app.spark.views.mixin_views.get_all_sources')
+    def test_table_upload(self, mock_tuj, mock_gas):
+        name = u"test.csv"
+        source = SourceFile(name=name,
+                            data=b'data',
+                            contentType='application/csv')
+        with mock_dataserver.mock_db_trans(self.ds):
+            self._create_user("pgreazy")
+        
+        unauthed_environ = self._make_extra_environ(username="pgreazy")
+        self.testapp.post('/dataserver2/spark/hive/OU.orgsync_recommendations/@@upload',
+                          extra_environ=unauthed_environ,
+                          status=403)
+        
+        mock_gas.is_callable().with_args().returns({
+            name: source
+        })
+
+        mock_tuj.is_callable().with_args().returns('job')
+
+        res = self.testapp.post_json('/dataserver2/spark/hive/OU.orgsync_recommendations/@@upload',
+                                     {},
+                                     status=200)
+        
+        assert_that(res.json_body,
+                    has_entries('Items', has_entries(name, 'job')))

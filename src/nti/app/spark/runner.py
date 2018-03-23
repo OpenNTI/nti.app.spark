@@ -11,11 +11,13 @@ from __future__ import absolute_import
 import six
 import sys
 import time
-
+import shutil
+import tempfile
 import simplejson
 
 import transaction
 
+from zope import component
 from zope import exceptions
 from zope import lifecycleevent
 
@@ -26,7 +28,9 @@ from nti.app.spark.common import unpickle
 from nti.app.spark.common import get_site
 from nti.app.spark.common import pickle_dump
 from nti.app.spark.common import get_creator
+from nti.app.spark.common import save_source
 from nti.app.spark.common import redis_client
+from nti.app.spark.common import get_redis_lock
 
 from nti.app.spark.interfaces import FAILED
 from nti.app.spark.interfaces import PENDING
@@ -209,3 +213,34 @@ def queue_job(creator, func, args=(), kws=None, site=None):
                     job_id=job.job_id,
                     site_name=site_name)
     return job
+
+# generic upload job
+
+LOCK = "++etc++ou++%s++%s++lock"
+
+def do_table_upload(table, source, overwrite=True):
+    hive = component.getUtility(IHiveSparkInstance).hive
+    # Read file blind of schema - allow the 
+    # job to fail if a bad format is given
+    data_frame = hive.read.csv(
+        source, header=True, mode="DROPMALFORMED"
+    )
+    table.update(data_frame, overwrite=overwrite)
+    return data_frame
+
+def generic_upload_job(context, source, overwrite):
+    # This should match the locks if uploading from specifig
+    # database URL
+    table_lock = LOCK % (context.database,context.table_name)
+    with get_redis_lock(table_lock):
+        tmpdir = tempfile.mkdtemp()
+        try:
+            source_file = save_source(source, tmpdir)
+            do_table_upload(context, source, overwrite)
+        finally:
+            shutil.rmtree(tmpdir, True)
+
+
+def create_generic_table_upload_job(creator, source, context, overwrite=True):
+    return queue_job(creator, generic_upload_job, 
+                     args=(context, source, overwrite))
