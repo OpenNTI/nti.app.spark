@@ -62,8 +62,7 @@ class TestHiveViews(ApplicationLayerTest):
     def test_spark_tables(self, mock_gu):
         fake_table = FakeTable()
         fake_historical = FakeHistorical()
-        hive = fudge.Fake().provides(
-            "get_table_schema").returns({'partition': []})
+        hive = fudge.Fake().provides("get_table_schema").returns({'partition': []})
         mock_gu.is_callable().returns(hive)
         try:
             gsm = component.getGlobalSiteManager()
