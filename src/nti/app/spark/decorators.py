@@ -40,19 +40,18 @@ class _HiveTableDecorator(AbstractAuthenticatedRequestAwareDecorator):
     on externalization
     """
 
-    ARCHIVE_LINKS = ('reset', 'archive')
-
     GENERAL_LINKS = ('upload',)
+    ARCHIVE_LINKS = ('reset', 'archive')
 
     def _predicate(self, context, unused_result):
         # pylint: disable=too-many-function-args
         return bool(self.authenticated_userid) \
            and has_permission(ACT_READ, context, self.request)
 
-    def _generate_links(self, collection, links, root_url):
-        for lnk in collection:
+    def _generate_links(self, names, links, root_url):
+        for lnk in names or ():
             links.append(Link(root_url, elements=('@@%s' % lnk,),
-                                  rel=lnk))
+                              rel=lnk))
 
     def _do_decorate_external(self, context, result):
         links = result.setdefault(LINKS, [])
