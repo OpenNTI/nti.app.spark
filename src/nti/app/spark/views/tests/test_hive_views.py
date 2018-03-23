@@ -99,3 +99,7 @@ class TestHiveViews(ApplicationLayerTest):
                                   'fake_table')
             gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
                                   'fake_historical')
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    def test_table_upload(self):
+        pass

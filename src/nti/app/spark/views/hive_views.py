@@ -103,3 +103,14 @@ class HiveTableArchiveView(AbstractAuthenticatedView):
         # pylint: disable=no-member
         self.context.archive()
         return hexc.HTTPNoContent()
+
+@view_config(name="upload")
+@view_defaults(route_name="objects.generic.traversal",
+               renderer="rest",
+               request_method="POST",
+               context=IHiveTable,
+               permission=nauth.ACT_NTI_ADMIN)
+class HiveTableUploadView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        return {}
