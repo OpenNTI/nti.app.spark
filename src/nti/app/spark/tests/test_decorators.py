@@ -7,6 +7,11 @@ from __future__ import absolute_import
 
 # pylint: disable=protected-access,too-many-public-methods
 
+from hamcrest import has_item
+from hamcrest import has_entry
+from hamcrest import has_entries
+from hamcrest import assert_that
+
 from nti.app.spark.tests import SparkApplicationTestLayer
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
@@ -23,4 +28,10 @@ class TestHiveDecorators(ApplicationLayerTest):
     def test_table_decoration(self):
         res = self.testapp.get('/dataserver2/spark/hive/OU.orgsync_recommendations',
                             status=200)
-        from pdb import set_trace; set_trace()
+        
+        assert_that(res.json_body, 
+                    has_entries('Links',
+                                has_item(has_entry('rel', 'archive'))))
+        assert_that(res.json_body,
+                    has_entries('Links',
+                                has_item(has_entry('rel', 'reset'))))
