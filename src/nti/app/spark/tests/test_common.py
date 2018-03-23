@@ -12,17 +12,22 @@ from hamcrest import none
 from hamcrest import is_not
 from hamcrest import assert_that
 
+import os
 import time
+import shutil
 import unittest
+import tempfile
 from datetime import datetime
 
 import fudge
 
 from nti.app.spark.common import get_site
+from nti.app.spark.common import save_source
 from nti.app.spark.common import get_redis_lock
 from nti.app.spark.common import parse_timestamp
-
 from nti.app.spark.tests import SharedConfiguringTestLayer
+
+from nti.cabinet.mixins import SourceFile
 
 
 class TestCommon(unittest.TestCase):
@@ -40,3 +45,15 @@ class TestCommon(unittest.TestCase):
     def test_get_redis_lock(self, mock_rl):
         mock_rl.is_callable().returns_fake()
         assert_that(get_redis_lock('foo'), is_not(none()))
+
+    def test_save_source(self):
+        tmpdir = tempfile.mkdtemp()
+        try:
+            name = u'source.txt'
+            source = SourceFile(name=name,
+                                data=b'data',
+                                contentType="application/csv")
+            name = save_source(source, tmpdir)
+            assert_that(os.path.exists(name), is_(True))
+        finally:
+            shutil.rmtree(tmpdir)
