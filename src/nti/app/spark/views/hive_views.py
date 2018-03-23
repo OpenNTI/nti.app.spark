@@ -108,6 +108,7 @@ class HiveTableArchiveView(AbstractAuthenticatedView):
         self.context.archive()
         return hexc.HTTPNoContent()
 
+
 @view_config(name="upload")
 @view_defaults(route_name="objects.generic.traversal",
                renderer="rest",
@@ -116,5 +117,5 @@ class HiveTableArchiveView(AbstractAuthenticatedView):
                permission=nauth.ACT_NTI_ADMIN)
 class HiveTableUploadView(AbstractHiveUploadView):
 
-    def create_upload_job(self, creator, target, timestamp, archive):
+    def create_upload_job(self, creator, target, unused_timestamp, unused_archive):
         return create_generic_table_upload_job(creator, target, self.context)
