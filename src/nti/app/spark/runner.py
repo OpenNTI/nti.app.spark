@@ -48,6 +48,8 @@ from nti.coremetadata.interfaces import SYSTEM_USER_ID
 from nti.ntiids.ntiids import make_ntiid
 from nti.ntiids.ntiids import make_specific_safe
 
+from nti.spark.interfaces import IHiveSparkInstance
+
 from nti.zodb.containers import time_to_64bit_int
 
 # common
@@ -106,7 +108,8 @@ def get_job_error(job_id):
     if redis is not None:
         key = job_id_error(job_id)
         result = redis.get(key)
-        result = simplejson.loads(prepare_json_text(result)) if result else None
+        result = simplejson.loads(
+            prepare_json_text(result)) if result else None
         if isinstance(result, six.string_types):
             result = {
                 'message': result,
@@ -170,6 +173,7 @@ def run_job(job):
         kws = job.callable_kwargs or {}
         func(*args, **kws)
         # 3. clean on commit
+
         def after_commit_or_abort(success=False):
             if success:
                 update_job_status(job_id, SUCCESS)
@@ -214,13 +218,16 @@ def queue_job(creator, func, args=(), kws=None, site=None):
                     site_name=site_name)
     return job
 
+
 # generic upload job
+
 
 LOCK = "++etc++ou++%s++%s++lock"
 
+
 def do_table_upload(table, source, overwrite=True):
     hive = component.getUtility(IHiveSparkInstance).hive
-    # Read file blind of schema - allow the 
+    # Read file blind of schema - allow the
     # job to fail if a bad format is given
     data_frame = hive.read.csv(
         source, header=True, mode="DROPMALFORMED"
@@ -228,19 +235,20 @@ def do_table_upload(table, source, overwrite=True):
     table.update(data_frame, overwrite=overwrite)
     return data_frame
 
+
 def generic_upload_job(context, source, overwrite):
     # This should match the locks if uploading from specifig
     # database URL
-    table_lock = LOCK % (context.database,context.table_name)
+    table_lock = LOCK % (context.database, context.table_name)
     with get_redis_lock(table_lock):
         tmpdir = tempfile.mkdtemp()
         try:
             source_file = save_source(source, tmpdir)
-            do_table_upload(context, source, overwrite)
+            do_table_upload(context, source_file, overwrite)
         finally:
             shutil.rmtree(tmpdir, True)
 
 
 def create_generic_table_upload_job(creator, source, context, overwrite=True):
-    return queue_job(creator, generic_upload_job, 
+    return queue_job(creator, generic_upload_job,
                      args=(context, source, overwrite))

@@ -86,6 +86,7 @@ def parse_timestamp(timestamp):
     timestamp = datetime.now() if timestamp is None else timestamp
     return timestamp
 
+
 def save_source(source, path=None):
     path = path or tempfile.mkdtemp()
     name = os.path.split(source.filename)[1]

@@ -114,12 +114,12 @@ class TestHiveViews(ApplicationLayerTest):
                             contentType='application/csv')
         with mock_dataserver.mock_db_trans(self.ds):
             self._create_user("pgreazy")
-        
+
         unauthed_environ = self._make_extra_environ(username="pgreazy")
         self.testapp.post('/dataserver2/spark/hive/OU.orgsync_recommendations/@@upload',
                           extra_environ=unauthed_environ,
                           status=403)
-        
+
         mock_gas.is_callable().with_args().returns({
             name: source
         })
@@ -129,6 +129,6 @@ class TestHiveViews(ApplicationLayerTest):
         res = self.testapp.post_json('/dataserver2/spark/hive/OU.orgsync_recommendations/@@upload',
                                      {},
                                      status=200)
-        
+
         assert_that(res.json_body,
                     has_entries('Items', has_entries(name, 'job')))
