@@ -49,7 +49,7 @@ class _HiveTableDecorator(AbstractAuthenticatedRequestAwareDecorator):
         return bool(self.authenticated_userid) \
            and has_permission(ACT_READ, context, self.request)
 
-    def _generate_links(self, collection, links):
+    def _generate_links(self, collection, links, root_url):
         for lnk in collection:
             links.append(Link(root_url, elements=('@@%s' % lnk,),
                                   rel=lnk))
@@ -57,6 +57,6 @@ class _HiveTableDecorator(AbstractAuthenticatedRequestAwareDecorator):
     def _do_decorate_external(self, context, result):
         links = result.setdefault(LINKS, [])
         root_url = self.request.url
-        self._generate_links(self.GENERAL_LINKS, links)
+        self._generate_links(self.GENERAL_LINKS, links, root_url)
         if IArchivableHiveTimeIndexed.providedBy(context):
-            self._generate_links(self.ARCHIVE_LINKS, links)
+            self._generate_links(self.ARCHIVE_LINKS, links, root_url)
