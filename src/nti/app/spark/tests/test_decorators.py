@@ -32,13 +32,13 @@ class TestHiveDecorators(ApplicationLayerTest):
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_table_decoration(self):
-        
+
         class IFakeTable(IArchivableHiveTimeIndexed):
             pass
 
         class FakeTable(ABSArchivableHiveTimeIndexed):
-            
-            def historical(self):
+
+            def historical(self):  # pragma: no cover
                 pass
 
         fake = FakeTable("fake", "fake.fake")
