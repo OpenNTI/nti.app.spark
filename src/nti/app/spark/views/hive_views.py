@@ -116,6 +116,5 @@ class HiveTableArchiveView(AbstractAuthenticatedView):
                permission=nauth.ACT_NTI_ADMIN)
 class HiveTableUploadView(AbstractHiveUploadView):
 
-    def create_upload_job(self, creator, target, timestamp, archive=True):
-        return create_generic_table_upload_job(creator, target, self.context,
-                                               timestamp, archive)
+    def create_upload_job(self, creator, target, timestamp, archive):
+        return create_generic_table_upload_job(creator, target, self.context)
