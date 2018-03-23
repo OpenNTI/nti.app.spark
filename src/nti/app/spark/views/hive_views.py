@@ -82,7 +82,7 @@ class HiveTableGetView(AbstractAuthenticatedView):
                renderer='rest',
                request_method='POST',
                context=IArchivableHiveTimeIndexed,
-               permission=nauth.ACT_NTI_ADMIN)
+               permission=nauth.ACT_READ)
 class HiveTableResetView(AbstractAuthenticatedView):
 
     def __call__(self):
@@ -96,7 +96,7 @@ class HiveTableResetView(AbstractAuthenticatedView):
                renderer='rest',
                request_method='POST',
                context=IArchivableHiveTimeIndexed,
-               permission=nauth.ACT_NTI_ADMIN)
+               permission=nauth.ACT_READ)
 class HiveTableArchiveView(AbstractAuthenticatedView):
 
     def __call__(self):
