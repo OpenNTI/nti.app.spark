@@ -17,7 +17,11 @@ from zope import component
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
+from nti.app.spark.runner import create_generic_table_upload_job
+
 from nti.app.spark.views import HivePathAdapter
+
+from nti.app.spark.views.mixin_views import AbstractHiveUploadView
 
 from nti.dataserver import authorization as nauth
 
@@ -110,7 +114,8 @@ class HiveTableArchiveView(AbstractAuthenticatedView):
                request_method="POST",
                context=IHiveTable,
                permission=nauth.ACT_NTI_ADMIN)
-class HiveTableUploadView(AbstractAuthenticatedView):
+class HiveTableUploadView(AbstractHiveUploadView):
 
-    def __call__(self):
-        return {}
+    def create_upload_job(self, creator, target, timestamp, archive=True):
+        return create_generic_table_upload_job(creator, target, self.context,
+                                               timestamp, archive)

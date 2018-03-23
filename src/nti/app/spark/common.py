@@ -8,7 +8,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import os
 import zlib
+import tempfile
 from io import BytesIO
 from datetime import datetime
 from six.moves import cPickle as pickle
@@ -18,6 +20,8 @@ from redis_lock import Lock as RedisLock
 from zope import component
 
 from zope.component.hooks import getSite
+
+from nti.common.io import extract_all
 
 from nti.coremetadata.interfaces import IRedisClient
 
@@ -81,3 +85,11 @@ def parse_timestamp(timestamp):
     timestamp = parse_date(timestamp) if timestamp is not None else None
     timestamp = datetime.now() if timestamp is None else timestamp
     return timestamp
+
+def save_source(source, path=None):
+    path = path or tempfile.mkdtemp()
+    name = os.path.split(source.filename)[1]
+    name = os.path.join(path, name)
+    with open(name, "w") as fp:
+        fp.write(source.data)
+    return extract_all(name)
