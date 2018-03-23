@@ -25,6 +25,15 @@ from nti.testing.layers import ConfiguringLayerMixin
 import zope.testing.cleanup
 
 
+class NoOpCM(object):
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, t, v, tb):
+        pass
+
+
 class SharedConfiguringTestLayer(ZopeComponentLayer,
                                  GCLayerMixin,
                                  ConfiguringLayerMixin):
