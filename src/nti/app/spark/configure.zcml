@@ -41,4 +41,10 @@
 		<runner:registerProcessingQueue />
 	</configure>
 
+	<!-- Decorators -->
+	<subscriber factory=".decorators._HiveTableDecorator"
+				for="nti.spark.interfaces.IHiveTable
+					 pyramid.interfaces.IRequest"
+				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
+
 </configure>
