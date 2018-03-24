@@ -32,16 +32,14 @@ LINKS = StandardExternalFields.LINKS
 logger = __import__('logging').getLogger(__name__)
 
 
-@component.adapter(IHiveTable, IRequest)
 @interface.implementer(IExternalObjectDecorator)
-class _HiveTableDecorator(AbstractAuthenticatedRequestAwareDecorator):
+class _TableDecoratorMixin(AbstractAuthenticatedRequestAwareDecorator):
     """
     Decorate Hive table operations links onto hive table objects
     on externalization
     """
 
-    GENERAL_LINKS = ('upload',)
-    ARCHIVE_LINKS = ('reset', 'archive')
+    LINKS = ('upload',)
 
     def _predicate(self, context, unused_result):
         # pylint: disable=too-many-function-args
@@ -53,9 +51,24 @@ class _HiveTableDecorator(AbstractAuthenticatedRequestAwareDecorator):
             links.append(Link(root_url, elements=('@@%s' % lnk,),
                               rel=lnk))
 
-    def _do_decorate_external(self, context, result):
+    def _do_decorate_external(self, unused_context, result):
         links = result.setdefault(LINKS, [])
-        root_url = self.request.url
-        self._generate_links(self.GENERAL_LINKS, links, root_url)
-        if IArchivableHiveTimeIndexed.providedBy(context):
-            self._generate_links(self.ARCHIVE_LINKS, links, root_url)
+        self._generate_links(self.LINKS, links, self.request.url)
+
+
+@component.adapter(IHiveTable, IRequest)
+class _HiveTableDecorator(_TableDecoratorMixin):
+    """
+    Decorate Hive table operations links onto hive table objects
+    on externalization
+    """
+    LINKS = ('upload',)
+
+
+@component.adapter(IArchivableHiveTimeIndexed, IRequest)
+class _ArchivableHiveTableDecorator(_TableDecoratorMixin):
+    """
+    Decorate Hive table operations links onto archivable hive table objects
+    on externalization
+    """
+    LINKS = ('reset', 'archive')
