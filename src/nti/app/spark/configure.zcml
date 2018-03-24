@@ -46,5 +46,10 @@
 				for="nti.spark.interfaces.IHiveTable
 					 pyramid.interfaces.IRequest"
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
+	
+	<subscriber factory=".decorators._ArchivableHiveTableDecorator"
+				for="nti.spark.interfaces.IArchivableHiveTimeIndexed
+					 pyramid.interfaces.IRequest"
+				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
 
 </configure>
