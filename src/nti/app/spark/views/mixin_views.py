@@ -50,10 +50,10 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
     def max_file_length(self):
         return DEFAULT_MAX_SOURCE_SIZE
 
-    def create_upload_job(self, creator, target, timestamp, archive):
+    def create_upload_job(self, creator, target, timestamp, archive, strict):
         raise NotImplementedError()
 
-    def do_call(self, creator, timestamp, archive):
+    def do_call(self, creator, timestamp, archive, strict):
         result = LocatedExternalDict()
         result.__name__ = self.request.view_name
         result.__parent__ = self.request.context
@@ -71,7 +71,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
             filename = getattr(source, 'filename', None) or name
             target = NamedSource(name=filename, data=source.data)
             job = self.create_upload_job(creator, target,
-                                         timestamp, archive)
+                                         timestamp, archive, strict)
             items[filename] = job
         result[ITEM_COUNT] = result[TOTAL] = len(items)
         return result
@@ -81,6 +81,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
         # pylint: disable=no-member
         creator = self.remoteUser.username
         # get parameters
+        strict = is_true(data.get('archive', False))
         archive = is_true(data.get('archive', True))
         timestamp = parse_timestamp(data.get('timestamp'))
-        return self.do_call(creator, timestamp, archive)
+        return self.do_call(creator, timestamp, archive, strict)
