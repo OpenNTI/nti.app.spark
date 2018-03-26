@@ -63,7 +63,7 @@ class HiveTablesView(AbstractAuthenticatedView):
         result = LocatedExternalDict()
         result[ITEMS] = items = []
         for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            items.append(to_external_object(table))
+            items.append(to_external_object(table, name="summary"))
         result[TOTAL] = result[ITEM_COUNT] = len(items)
         result.__name__ = self.request.view_name
         result.__parent__ = self.request.context
