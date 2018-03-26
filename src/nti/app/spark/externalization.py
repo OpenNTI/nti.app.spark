@@ -44,7 +44,8 @@ class _HiveTableExternal(object):
 
     def schema(self):
         spark = getUtility(IHiveSparkInstance)
-        return spark.get_table_schema(self.table.table_name)
+        if spark.table_exists(self.table.table_name):
+            return spark.get_table_schema(self.table.table_name)
 
     def toExternalObject(self, **unused_kwargs):
         result = LocatedExternalDict()
