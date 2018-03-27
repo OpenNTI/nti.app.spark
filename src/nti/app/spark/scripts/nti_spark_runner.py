@@ -23,8 +23,7 @@ class Constructor(Processor):
         context = create_context(env_dir,
                                  with_library=False,
                                  plugins=True,
-                                 slugs=True,
-                                 slugs_files=("*spark.zcml", "*features.zcml"))
+                                 slugs=True)
         return context
 
     def conf_packages(self):
