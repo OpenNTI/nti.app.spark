@@ -27,6 +27,8 @@ from nti.cabinet.mixins import NamedSource
 
 from nti.common.string import is_true
 
+from nti.coremetadata.interfaces import SYSTEM_USER_ID
+
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
@@ -79,7 +81,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
     def __call__(self):  # pragma: no cover
         data = self.readInput()
         # pylint: disable=no-member
-        creator = self.remoteUser.username
+        creator = getattr(self.remoteUser, 'username', None) or SYSTEM_USER_ID
         # get parameters
         strict = is_true(data.get('archive', False))
         archive = is_true(data.get('archive', True))
