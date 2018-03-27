@@ -29,13 +29,6 @@ from nti.common.string import is_true
 
 from nti.coremetadata.interfaces import SYSTEM_USER_ID
 
-from nti.externalization.interfaces import LocatedExternalDict
-from nti.externalization.interfaces import StandardExternalFields
-
-TOTAL = StandardExternalFields.TOTAL
-ITEMS = StandardExternalFields.ITEMS
-ITEM_COUNT = StandardExternalFields.ITEM_COUNT
-
 #: Default max source size
 DEFAULT_MAX_SOURCE_SIZE = 209715200  # 200mb
 
@@ -55,27 +48,21 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
     def create_upload_job(self, creator, target, timestamp, archive, strict):
         raise NotImplementedError()
 
-    def do_call(self, creator, timestamp, archive, strict):
-        result = LocatedExternalDict()
-        result.__name__ = self.request.view_name
-        result.__parent__ = self.request.context
-        result[ITEMS] = items = {}
+    def do_call(self, creator, timestamp, archive, strict=False):
         sources = get_all_sources(self.request)
-        for name, source in sources.items():
-            if source.length >= self.max_file_length():
-                raise_json_error(self.request,
-                                 hexc.HTTPUnprocessableEntity,
-                                 {
-                                     'message': _(u"Max file size exceeded"),
-                                     'code': 'MaxFileSizeExceeded',
-                                 },
-                                 None)
-            filename = getattr(source, 'filename', None) or name
-            target = NamedSource(name=filename, data=source.data)
-            job = self.create_upload_job(creator, target,
-                                         timestamp, archive, strict)
-            items[filename] = job
-        result[ITEM_COUNT] = result[TOTAL] = len(items)
+        name, source = next(iter(sources.items()))
+        if source.length >= self.max_file_length():
+            raise_json_error(self.request,
+                             hexc.HTTPUnprocessableEntity,
+                             {
+                                 'message': _(u"Max file size exceeded"),
+                                 'code': 'MaxFileSizeExceeded',
+                             },
+                             None)
+        filename = getattr(source, 'filename', None) or name
+        target = NamedSource(name=filename, data=source.data)
+        result = self.create_upload_job(creator, target,
+                                        timestamp, archive, strict)
         return result
 
     def __call__(self):  # pragma: no cover
