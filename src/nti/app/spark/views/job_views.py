@@ -44,7 +44,7 @@ logger = __import__('logging').getLogger(__name__)
                renderer='rest',
                request_method='GET',
                context=SparkPathAdapter,
-               permission=nauth.ACT_NTI_ADMIN)
+               permission=nauth.ACT_READ)
 class SparkJobStatusView(AbstractAuthenticatedView):
 
     def __call__(self):
@@ -76,7 +76,7 @@ class SparkJobStatusView(AbstractAuthenticatedView):
                renderer='rest',
                request_method='GET',
                context=SparkPathAdapter,
-               permission=nauth.ACT_NTI_ADMIN)
+               permission=nauth.ACT_READ)
 class SparkJobErrorView(AbstractAuthenticatedView):
 
     def __call__(self):
