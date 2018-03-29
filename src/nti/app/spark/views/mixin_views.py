@@ -70,7 +70,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
         # pylint: disable=no-member
         creator = getattr(self.remoteUser, 'username', None) or SYSTEM_USER_ID
         # get parameters
-        strict = is_true(data.get('strict', True))
+        strict = is_true(data.get('strict', False))
         archive = is_true(data.get('archive', True))
         timestamp = parse_timestamp(data.get('timestamp'))
         return self.do_call(creator, timestamp, archive, strict)
