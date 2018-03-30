@@ -33,13 +33,14 @@
 	<adapter factory=".acl._HiveTableACLProvider" />
 
 	<!-- Jobs -->
+	<runner:registerImmediateProcessingQueue />
+	<!--
 	<configure zcml:condition="have testmode">
-		<runner:registerImmediateProcessingQueue />
 	</configure>
-
 	<configure zcml:condition="not-have testmode">
 		<runner:registerProcessingQueue />
 	</configure>
+	-->
 
 	<!-- Decorators -->
 	<subscriber factory=".decorators._HiveTableDecorator"
