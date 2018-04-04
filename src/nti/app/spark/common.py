@@ -12,6 +12,7 @@ import os
 import zlib
 import tempfile
 from io import BytesIO
+from datetime import date
 from datetime import datetime
 from six.moves import cPickle as pickle
 
@@ -82,9 +83,9 @@ def parse_timestamp(timestamp):
     """
     return a datetime object from the specified timestamp
     """
-    timestamp = parse_date(timestamp) if timestamp is not None else None
-    timestamp = datetime.now() if timestamp is None else timestamp
-    return timestamp
+    result = parse_date(timestamp) if timestamp is not None else None
+    result = datetime.combine(date.today(), datetime.min.time()) if not result else result
+    return result
 
 
 def save_source(source, path=None):

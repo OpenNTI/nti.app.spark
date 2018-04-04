@@ -26,6 +26,7 @@ from nti.links.links import Link
 
 from nti.spark.interfaces import IHiveTable
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
+from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 LINKS = StandardExternalFields.LINKS
 
@@ -72,3 +73,12 @@ class _ArchivableHiveTableDecorator(_TableDecoratorMixin):
     on externalization
     """
     LINKS = ('reset', 'archive')
+
+
+@component.adapter(IArchivableHiveTimeIndexedHistorical, IRequest)
+class _ArchivableHiveTableHistoricalDecorator(_TableDecoratorMixin):
+    """
+    Decorate Hive table operations links onto historical archivable hive table objects
+    on externalization
+    """
+    LINKS = ('unarchive',)
