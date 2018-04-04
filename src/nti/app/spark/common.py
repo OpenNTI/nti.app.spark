@@ -82,9 +82,9 @@ def parse_timestamp(timestamp):
     """
     return a datetime object from the specified timestamp
     """
-    timestamp = parse_date(timestamp) if timestamp is not None else None
-    timestamp = datetime.now() if timestamp is None else timestamp
-    return timestamp
+    result = parse_date(timestamp) if timestamp is not None else None
+    result = datetime.combine(result, datetime.min.time()) if result is None else result
+    return result
 
 
 def save_source(source, path=None):
