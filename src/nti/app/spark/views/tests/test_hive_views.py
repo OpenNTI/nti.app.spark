@@ -51,6 +51,9 @@ class FakeHistorical(FakeTable):
 
     timestamps = (10, 11)
     table_name = 'fake_historical'
+    
+    def unarchive(self, *args):
+        pass
 
 
 class TestHiveViews(ApplicationLayerTest):
@@ -62,7 +65,10 @@ class TestHiveViews(ApplicationLayerTest):
     def test_spark_tables(self, mock_gu):
         fake_table = FakeTable()
         fake_historical = FakeHistorical()
-        hive = fudge.Fake().provides("get_table_schema").returns({'partition': []})
+        # fake spark/hive
+        hive = fudge.Fake()
+        hive.provides("get_table_schema").returns({'partition': []})
+        hive.provides("table_exists").returns(True)
         mock_gu.is_callable().returns(hive)
         try:
             gsm = component.getGlobalSiteManager()
@@ -98,6 +104,12 @@ class TestHiveViews(ApplicationLayerTest):
 
             self.testapp.post('/dataserver2/spark/hive/fake_table/@@archive',
                               status=204)
+
+            self.testapp.post_json('/dataserver2/spark/hive/fake_historical/@@unarchive',
+                                   {
+                                       "timestamp": "2018-04-02",
+                                   },
+                                   status=204)
         finally:
             gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
                                   'fake_table')
@@ -124,11 +136,11 @@ class TestHiveViews(ApplicationLayerTest):
             name: source
         })
 
-        mock_tuj.is_callable().with_args().returns('job')
+        mock_tuj.is_callable().with_args().returns({'jobId': 'myjob'})
 
         res = self.testapp.post_json('/dataserver2/spark/hive/OU.orgsync_recommendations/@@upload',
                                      {},
                                      status=200)
 
         assert_that(res.json_body,
-                    has_entries('Items', has_entries(name, 'job')))
+                    has_entries('jobId', 'myjob'))
