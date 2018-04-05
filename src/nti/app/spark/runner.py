@@ -50,6 +50,8 @@ from nti.ntiids.ntiids import make_specific_safe
 
 from nti.spark.interfaces import IHiveSparkInstance
 
+from nti.spark.utils import csv_mode
+
 from nti.zodb.containers import time_to_64bit_int
 
 # common
@@ -225,18 +227,18 @@ def queue_job(creator, func, args=(), kws=None, site=None):
 LOCK = "++etc++ou++%s++%s++lock"
 
 
-def do_table_upload(table, source, overwrite=True):
+def do_table_upload(table, source, overwrite=True, strict=False):
     hive = component.getUtility(IHiveSparkInstance).hive
     # Read file blind of schema - allow the
     # job to fail if a bad format is given
     data_frame = hive.read.csv(
-        source, header=True, mode="DROPMALFORMED"
+        source, header=True, mode=csv_mode(strict),
     )
     table.update(data_frame, overwrite=overwrite)
     return data_frame
 
 
-def generic_upload_job(context, source, overwrite):
+def generic_upload_job(context, source, overwrite, strict=False):
     # This should match the locks if uploading from specifig
     # database URL
     table_lock = LOCK % (context.database, context.table_name)
@@ -244,11 +246,12 @@ def generic_upload_job(context, source, overwrite):
         tmpdir = tempfile.mkdtemp()
         try:
             source_file = save_source(source, tmpdir)
-            do_table_upload(context, source_file, overwrite)
+            do_table_upload(context, source_file, overwrite, strict)
         finally:
             shutil.rmtree(tmpdir, True)
 
 
-def create_generic_table_upload_job(creator, source, context, overwrite=True):
+def create_generic_table_upload_job(creator, source, context, 
+                                    overwrite=True, strict=False):
     return queue_job(creator, generic_upload_job,
-                     args=(context, source, overwrite))
+                     args=(context, source, overwrite, strict))
