@@ -13,12 +13,23 @@ from pyramid import httpexceptions as hexc
 from zope import component
 from zope import interface
 
+from zope.cachedescriptors.property import Lazy
+
 from zope.location.interfaces import IContained
 
 from zope.traversing.interfaces import IPathAdapter
 
 from nti.app.spark import HIVE_ADAPTER
 from nti.app.spark import SPARK_ADAPTER
+
+from nti.app.spark.interfaces import RID_SPARK
+
+from nti.dataserver.authorization import ROLE_ADMIN
+
+from nti.dataserver.authorization_acl import ace_allowing
+from nti.dataserver.authorization_acl import acl_from_aces
+
+from nti.dataserver.interfaces import ALL_PERMISSIONS
 
 from nti.spark.interfaces import IHiveTable
 
@@ -52,6 +63,15 @@ class HivePathAdapter(object):
         if table is not None:
             return table
         raise KeyError(key) if key else hexc.HTTPNotFound()
+
+    @Lazy
+    def __acl__(self):
+        aces = [
+            ace_allowing(ROLE_ADMIN, ALL_PERMISSIONS, type(self)),
+            ace_allowing(RID_SPARK, ALL_PERMISSIONS, type(self)),
+        ]
+        acl = acl_from_aces(aces)
+        return acl
 
 
 @interface.implementer(IPathAdapter, IContained)
