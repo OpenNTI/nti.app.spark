@@ -30,6 +30,7 @@ from nti.app.spark.runner import get_job_status
 
 from nti.app.spark.views import SPARK_JOB_ERROR
 from nti.app.spark.views import SPARK_JOB_STATUS
+
 from nti.app.spark.views import SparkPathAdapter
 
 from nti.dataserver import authorization as nauth

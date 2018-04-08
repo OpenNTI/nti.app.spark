@@ -14,15 +14,28 @@ from zope import interface
 
 from zope.location.interfaces import IContained as IZContained
 
+from zope.security.permission import Permission
+
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 from nti.base.interfaces import ICreated
 from nti.base.interfaces import ILastModified
 
+from nti.dataserver.authorization import ROLE_PREFIX
+
+from nti.dataserver.authorization import StringRole
+
 from nti.schema.field import Text
 from nti.schema.field import Choice
 from nti.schema.field import DecodingValidTextLine as ValidTextLine
+
+#: The ID of a role for spark
+RID_SPARK_PREFIX = ROLE_PREFIX + 'nti.dataserver.spark'
+RID_SPARK = StringRole(RID_SPARK_PREFIX)
+
+#: Spark admin permission
+ACT_SPARK_ADMIN = Permission('nti.actions.spark.admin')
 
 FAILED = u'Failed'
 PENDING = u'Pending'

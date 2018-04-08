@@ -30,7 +30,22 @@
 	<adapter factory=".externalization._ArchivableHiveTimeIndexedHistoricalExternal" />
 
     <!-- ACLs -->
+	<role id="role:nti.dataserver.spark"
+		  title="A Spark role"
+		  description="Role for spark objects."/>
+
+	<permission	id="nti.actions.spark.admin"
+				title="Spark admin" />
+
+	<grant	permission="nti.actions.spark.admin"
+			role="role:nti.dataserver.spark" />
+
 	<adapter factory=".acl._HiveTableACLProvider" />
+
+	<adapter name="NextthoughtDotComSpark"
+			 for="nti.dataserver.interfaces.IUser"
+			 factory=".authorization.NextthoughtDotComSpark"
+			 provides="nti.dataserver.interfaces.IGroupMember" />
 
 	<!-- Jobs -->
 	<runner:registerImmediateProcessingQueue />

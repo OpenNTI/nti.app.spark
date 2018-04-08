@@ -13,7 +13,9 @@ from zope import interface
 
 from zope.cachedescriptors.property import Lazy
 
-from nti.dataserver import authorization
+from nti.app.spark.interfaces import RID_SPARK
+
+from nti.dataserver.authorization import ROLE_ADMIN
 
 from nti.dataserver.authorization_acl import ace_allowing
 from nti.dataserver.authorization_acl import acl_from_aces
@@ -35,7 +37,10 @@ class _ACLProviderMixin(object):
 
     @Lazy
     def __acl__(self):
-        aces = [ace_allowing(authorization.ROLE_ADMIN, ALL_PERMISSIONS, type(self))]
+        aces = [
+            ace_allowing(ROLE_ADMIN, ALL_PERMISSIONS, type(self)),
+            ace_allowing(RID_SPARK, ALL_PERMISSIONS, type(self)),
+        ]
         acl = acl_from_aces(aces)
         return acl
 
