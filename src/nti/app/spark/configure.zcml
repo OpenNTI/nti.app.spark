@@ -48,14 +48,12 @@
 			 provides="nti.dataserver.interfaces.IGroupMember" />
 
 	<!-- Jobs -->
-	<runner:registerImmediateProcessingQueue />
-	<!--
-	<configure zcml:condition="have testmode">
+	<configure zcml:condition="not-have prodmode">
+		<runner:registerImmediateProcessingQueue />
 	</configure>
-	<configure zcml:condition="not-have testmode">
+	<configure zcml:condition="have prodmode">
 		<runner:registerProcessingQueue />
 	</configure>
-	-->
 
 	<!-- Decorators -->
 	<subscriber factory=".decorators._HiveTableDecorator"
