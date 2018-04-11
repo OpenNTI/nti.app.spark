@@ -8,13 +8,27 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import atexit
+
+from zope import component
+
 from nti.app.asynchronous.processor import Processor
 
 from nti.app.spark import QUEUE_NAMES
 
 from nti.dataserver.utils.base_script import create_context
 
+from nti.spark.interfaces import IHiveSparkInstance
+
 logger = __import__('logging').getLogger(__name__)
+
+
+def close_at_exit():
+    try:
+        component.queryUtility(IHiveSparkInstance).close()
+    except Exception:  # pylint: disable=broad-except
+        pass
+atexit.register(close_at_exit)
 
 
 class Constructor(Processor):
