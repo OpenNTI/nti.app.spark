@@ -74,6 +74,6 @@
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
 	
 	<!-- Subscribers -->
-	<subscriber handler="subscribers._closed_dataserver" />
+	<subscriber handler=".subscribers._closed_dataserver" />
 	 
 </configure>
