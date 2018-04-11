@@ -72,5 +72,8 @@
 				for="nti.spark.interfaces.IArchivableHiveTimeIndexedHistorical
 					 pyramid.interfaces.IRequest"
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
-
+	
+	<!-- Subscribers -->
+	<subscriber handler="subscribers._closed_dataserver" />
+	 
 </configure>
