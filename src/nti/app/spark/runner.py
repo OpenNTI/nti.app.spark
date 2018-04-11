@@ -110,8 +110,7 @@ def get_job_error(job_id):
     if redis is not None:
         key = job_id_error(job_id)
         result = redis.get(key)
-        result = simplejson.loads(
-            prepare_json_text(result)) if result else None
+        result = simplejson.loads(prepare_json_text(result)) if result else None
         if isinstance(result, six.string_types):
             result = {
                 'message': result,
