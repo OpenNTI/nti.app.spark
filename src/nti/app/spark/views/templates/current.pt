@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:metal="http://xml.zope.org/namespaces/metal"
+	  xmlns:tal="http://xml.zope.org/namespaces/tal">
+	<head metal:use-macro="macro:mathplacement_head">
+		<metal:slot fill-slot="title">
+			<title>Hive Tables</title>
+		</metal:slot>
+	</head>
+	<body>
+		<div class="container" tal:define="table options/table">
+			<form class="form-horizontal" action="" method="" id="file_form">
+			</form>
+			<table tal:condition="python: len(table.context)" tal:replace="structure table/render" />
+
+			<div tal:condition="python: not len(table.context)">
+				<b>There are no results to show.</b>
+			</div>
+
+			<div class="batches" tal:define="table options/table" 
+								 tal:condition="python: len(table.context) > table.batchSize">
+					Pages: <span tal:replace="structure options/table/renderBatch" />
+			</div>
+		</div>
+
+</html>
