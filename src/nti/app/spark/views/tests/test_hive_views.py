@@ -110,6 +110,9 @@ class TestHiveViews(ApplicationLayerTest):
                                        "timestamp": "2018-04-02",
                                    },
                                    status=204)
+            
+            self.testapp.get('/dataserver2/spark/hive/@@current',
+                             status=200)
         finally:
             gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
                                   'fake_table')
