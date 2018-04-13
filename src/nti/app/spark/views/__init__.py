@@ -57,7 +57,7 @@ class HivePathAdapter(object):
         for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
             if table.table_name.lower() == key:
                 return table
-        
+
     def __getitem__(self, key):
         table = self.find_hive_table(key)
         if table is not None:

@@ -73,6 +73,7 @@ class HiveTablesView(AbstractAuthenticatedView):
         result.__parent__ = self.request.context
         return result
 
+
 @view_config(route_name='objects.generic.traversal',
              renderer='rest',
              request_method='GET',
