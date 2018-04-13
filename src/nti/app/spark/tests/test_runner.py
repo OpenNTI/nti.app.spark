@@ -13,7 +13,6 @@ from hamcrest import is_not
 from hamcrest import has_entry
 from hamcrest import assert_that
 
-import os
 import fudge
 
 from nti.app.spark.interfaces import FAILED
@@ -23,7 +22,6 @@ from nti.app.spark.runner import queue_job
 from nti.app.spark.runner import job_runner
 from nti.app.spark.runner import get_job_error
 from nti.app.spark.runner import get_job_status
-from nti.app.spark.runner import do_table_upload
 from nti.app.spark.runner import create_generic_table_upload_job
 
 from nti.app.spark.tests import NoOpCM
@@ -99,9 +97,3 @@ class TestRunner(ApplicationLayerTest):
         mock_grl.is_callable().returns(NoOpCM())
         job = create_generic_table_upload_job("pgreazy", source, FakeTable())
         assert_that(job, is_not(none()))
-        
-    @WithSharedApplicationMockDS
-    def test_do_table_upload(self):
-        path = os.path.join(os.path.dirname(__file__),
-                            "data", "students.csv")
-        do_table_upload(FakeTable(), path)
