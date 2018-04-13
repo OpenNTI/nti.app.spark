@@ -58,6 +58,10 @@ class HiveTimeIndexedTable(BatchTableMixin):
     pass
 
 
+class HiveTimeIndexedHistoricalTable(BatchTableMixin):
+    pass
+
+
 class TableNameColumn(column.Column):
 
     weight = 1
@@ -72,11 +76,29 @@ class TimestampColumn(column.Column):
     weight = 2
     header = u'Timestamp'
 
+    def formatTimestamp(self, timestamp):
+        tdt = datetime.fromtimestamp(timestamp) 
+        return isodate.datetime_isoformat(tdt, isodate.DATE_EXT_COMPLETE)
+
     def renderCell(self, item):  # pragma: no cover
         timestamp = item.timestamp
         if timestamp is not None:
-            tdt = datetime.fromtimestamp(timestamp) 
-            return isodate.datetime_isoformat(tdt, isodate.DATE_EXT_COMPLETE)
+            return self.formatTimestamp(timestamp)
+
+
+class TimestampsColumn(TimestampColumn):
+
+    weight = 2
+    header = u'Timestamps'
+
+    def renderCell(self, item):  # pragma: no cover        
+        timestamps = item.timestamps
+        result = ['<select class="cb cb-sm comboBox" id="tms-%s">' % item.__name__]
+        for timestamp in timestamps or ():
+            result.append('<option value="%s">%s</option>' %
+                          (timestamp, self.formatTimestamp(timestamp)))
+        result.append('</select>')
+        return ''.join(result)
 
 
 class ArchiveColumn(column.Column):
@@ -86,13 +108,31 @@ class ArchiveColumn(column.Column):
     def _archive_button(self, item):
         url = get_table_url(item, self.request) + '/@@archive'
         result = """
-            <button type="button" class="btn btn-default btn-sm archiveButton" target_title="" action_url="%s" data-toggle="modal" data-target="#archiveModal">
+            <button type="button" class="btn btn-default btn-sm archiveButton" id="arc-%s" 
+                    action_url="%s" data-toggle="modal" data-target="#archiveModal">
             %s</button>
-        """ % (url, 'Archive')
+        """ % (item.__name__, url, 'Archive')
         return result
 
     def renderCell(self, item):
         return self._archive_button(item)
+
+
+class UnarchiveColumn(column.Column):
+
+    weight = 3
+
+    def _unarchive_button(self, item):
+        url = get_table_url(item, self.request) + '/@@unarchive'
+        result = """
+            <button type="button" class="btn btn-default btn-sm unArchiveButton" id="uar-%s"
+                    action_url="%s" data-toggle="modal" data-target="#unArchiveModal">
+            %s</button>
+        """ % (item.__name__, url, 'Unarchive')
+        return result
+
+    def renderCell(self, item):
+        return self._unarchive_button(item)
 
 
 class ResetColumn(column.Column):
@@ -102,9 +142,10 @@ class ResetColumn(column.Column):
     def _reset_button(self, item):
         url = get_table_url(item, self.request) + '/@@reset'
         result = """
-            <button type="button" class="btn btn-default btn-sm resetButton" target_title="" action_url="%s" data-toggle="modal" data-target="#resetModal">
+            <button type="button" class="btn btn-default btn-sm resetButton" id="rst-%s"
+                    action_url="%s" data-toggle="modal" data-target="#resetModal">
             %s</button>
-        """ % (url, 'Reset')
+        """ % (item.__name__, url, 'Reset')
         return result
 
     def renderCell(self, item):
