@@ -11,11 +11,20 @@
 	<include package="zope.security" />
 	<include package="zope.location" />
 
+	<!-- This should happen early -->
+	<include package="nti.app.pyramid_zope" />
+
+	<include package="z3c.baseregistry" file="meta.zcml"/>
+	<include package="z3c.macro" file="meta.zcml"/>
+	<include package="z3c.macro" />
+
+	<!-- z3c:template/layout -->
+	<include package="z3c.template" file="meta.zcml" />
+
 	<include package="nti.asynchronous" />
 	<include package="nti.spark" />
 
 	<include package="." file="meta.zcml" />
-	<include package=".views" />
 
 	<!-- Externalization -->
 	<include package="nti.externalization" file="meta.zcml" />
@@ -74,4 +83,10 @@
 	<!-- Subscribers -->
 	<subscriber handler=".subscribers._closed_dataserver" />
 	 
+	<!-- Tables -->
+	<include package="." file="configure_hive_table.zcml" />
+	
+	<!-- Views -->
+	<include package=".views" />
+
 </configure>

@@ -13,9 +13,7 @@ from hamcrest import is_not
 from hamcrest import has_entry
 from hamcrest import assert_that
 
-import os
 import fudge
-import unittest
 
 from nti.app.spark.interfaces import FAILED
 from nti.app.spark.interfaces import SUCCESS
@@ -24,11 +22,14 @@ from nti.app.spark.runner import queue_job
 from nti.app.spark.runner import job_runner
 from nti.app.spark.runner import get_job_error
 from nti.app.spark.runner import get_job_status
-from nti.app.spark.runner import do_table_upload
 from nti.app.spark.runner import create_generic_table_upload_job
 
 from nti.app.spark.tests import NoOpCM
-from nti.app.spark.tests import SharedConfiguringTestLayer
+from nti.app.spark.tests import SparkApplicationTestLayer
+
+from nti.app.testing.application_webtest import ApplicationLayerTest
+
+from nti.app.testing.decorators import WithSharedApplicationMockDS
 
 from nti.coremetadata.interfaces import SYSTEM_USER_ID
 
@@ -53,11 +54,11 @@ class FakeTable(object):
         pass
 
 
-class TestRunner(unittest.TestCase):
+class TestRunner(ApplicationLayerTest):
 
-    layer = SharedConfiguringTestLayer
+    layer = SparkApplicationTestLayer
 
-    @mock_dataserver.WithMockDS
+    @WithSharedApplicationMockDS
     def test_good_job(self):
         # run job
         with mock_dataserver.mock_db_trans():
@@ -67,7 +68,7 @@ class TestRunner(unittest.TestCase):
         job_id = job.job_id
         assert_that(get_job_status(job_id), is_(SUCCESS))
 
-    @mock_dataserver.WithMockDS
+    @WithSharedApplicationMockDS
     def test_failed_job(self):
         # run job
         with mock_dataserver.mock_db_trans():
@@ -78,13 +79,13 @@ class TestRunner(unittest.TestCase):
         assert_that(get_job_status(job_id), is_(FAILED))
         assert_that(get_job_error(job_id), is_not(none()))
 
-    @mock_dataserver.WithMockDS
+    @WithSharedApplicationMockDS
     def test_missig_job(self):
         job_runner('missing')
         status = get_job_error('missing')
         assert_that(status, has_entry('message', 'Job is missing'))
 
-    @mock_dataserver.WithMockDS
+    @WithSharedApplicationMockDS
     @fudge.patch('nti.app.spark.runner.do_table_upload',
                  'nti.app.spark.runner.get_redis_lock')
     def test_upload(self, mock_load, mock_grl):
@@ -96,9 +97,3 @@ class TestRunner(unittest.TestCase):
         mock_grl.is_callable().returns(NoOpCM())
         job = create_generic_table_upload_job("pgreazy", source, FakeTable())
         assert_that(job, is_not(none()))
-        
-    @mock_dataserver.WithMockDS
-    def test_do_table_upload(self):
-        path = os.path.join(os.path.dirname(__file__),
-                            "data", "students.csv")
-        do_table_upload(FakeTable(), path)

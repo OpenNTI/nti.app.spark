@@ -58,6 +58,7 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
+        'nti.app.pyramid_zope',
         'nti.asynchronous',
         'nti.base',
         'nti.coremetadata',
@@ -77,6 +78,9 @@ setup(
         'simplejson',
         'six',
         'transaction',
+        'z3c.baseregistry',
+        'z3c.macro',
+        'z3c.table',
         'zope.cachedescriptors',
         'zope.component',
         'zope.container',

@@ -226,11 +226,11 @@ def queue_job(creator, func, args=(), kws=None, site=None):
 LOCK = "++etc++ou++%s++%s++lock"
 
 
-def do_table_upload(table, source, overwrite=True, strict=False):
-    hive = component.getUtility(IHiveSparkInstance).hive
+def do_table_upload(table, source, overwrite=True, strict=True, spark=None):  # pragma: no cover
+    spark = component.getUtility(IHiveSparkInstance) if spark is None else spark
     # Read file blind of schema - allow the
     # job to fail if a bad format is given
-    data_frame = hive.read.csv(
+    data_frame = spark.hive.read.csv(
         source, header=True, mode=csv_mode(strict),
     )
     table.update(data_frame, overwrite=overwrite)
@@ -250,7 +250,7 @@ def generic_upload_job(context, source, overwrite, strict=False):
             shutil.rmtree(tmpdir, True)
 
 
-def create_generic_table_upload_job(creator, source, context, 
+def create_generic_table_upload_job(creator, source, context,
                                     overwrite=True, strict=False):
     return queue_job(creator, generic_upload_job,
                      args=(context, source, overwrite, strict))

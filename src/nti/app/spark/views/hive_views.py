@@ -13,15 +13,12 @@ from pyramid import httpexceptions as hexc
 from pyramid.view import view_config
 from pyramid.view import view_defaults
 
-from requests.structures import CaseInsensitiveDict
-
 from zope import component
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
-from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
-
-from nti.app.spark.common import parse_timestamp
+from nti.app.spark._table_utils import make_specific_table
+from nti.app.spark._table_utils import HiveTimeIndexedTable
 
 from nti.app.spark.runner import create_generic_table_upload_job
 
@@ -37,8 +34,8 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.spark.interfaces import IHiveTable
+from nti.spark.interfaces import IHiveTimeIndexed
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
-from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 TOTAL = StandardExternalFields.TOTAL
 ITEMS = StandardExternalFields.ITEMS
@@ -129,24 +126,25 @@ class HiveTableUploadView(AbstractHiveUploadView):
         return create_generic_table_upload_job(creator, target, self.context)
 
 
-@view_config(name="unarchive")
-@view_defaults(route_name='objects.generic.traversal',
-               renderer='rest',
-               request_method='POST',
-               context=IArchivableHiveTimeIndexedHistorical,
+@view_config(context=HivePathAdapter)
+@view_defaults(route_name="objects.generic.traversal",
+               renderer="templates/current.pt",
+               name="current",
+               request_method="GET",
                permission=nauth.ACT_READ)
-class HiveTableHistoricalUnarchiveView(AbstractAuthenticatedView,
-                                       ModeledContentUploadRequestUtilsMixin):
+class HiveTimeIndexedTableView(AbstractAuthenticatedView):
 
-    def readInput(self, value=None):
-        result = None
-        if self.request.body:
-            result = super(HiveTableHistoricalUnarchiveView, self).readInput(value)
-        return CaseInsensitiveDict(result or {})
+    def get_table(self):
+        result = {}
+        for catalog in component.getAllUtilitiesRegisteredFor(IHiveTable):
+            if IHiveTimeIndexed.providedBy(catalog):
+                result[catalog.table_name] = catalog
+        return result
 
     def __call__(self):
-        # pylint: disable=no-member
-        values = self.readInput()
-        timestamp = parse_timestamp(values.get('timestamp'))
-        self.context.unarchive(timestamp)
-        return hexc.HTTPNoContent()
+        data = self.get_table()
+        table = make_specific_table(HiveTimeIndexedTable, data, self.request)
+        result = {
+            'table': table,
+        }
+        return result

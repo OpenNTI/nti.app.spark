@@ -17,22 +17,22 @@ from hamcrest import has_property
 from nti.testing.matchers import validly_provides
 from nti.testing.matchers import verifiably_provides
 
-import unittest
-
 from nti.app.spark.interfaces import ISparkJob
 
 from nti.app.spark.model import SparkJob
 
-from nti.app.spark.tests import SharedConfiguringTestLayer
+from nti.app.spark.tests import SparkApplicationTestLayer
+
+from nti.app.testing.application_webtest import ApplicationLayerTest
 
 from nti.base.interfaces import ILastModified
 
 from nti.externalization.testing import externalizes
 
 
-class TestModel(unittest.TestCase):
+class TestModel(ApplicationLayerTest):
 
-    layer = SharedConfiguringTestLayer
+    layer = SparkApplicationTestLayer
 
     def test_job(self):
         job = SparkJob()

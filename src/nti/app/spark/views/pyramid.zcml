@@ -9,5 +9,6 @@
 	<pyramid:scan package='.job_views' />
 	<pyramid:scan package='.hive_views' />
 	<pyramid:scan package='.spark_views' />
+	<pyramid:scan package='.historical_views' />
 
 </configure>
