@@ -226,7 +226,7 @@ def queue_job(creator, func, args=(), kws=None, site=None):
 LOCK = "++etc++ou++%s++%s++lock"
 
 
-def do_table_upload(table, source, overwrite=True, strict=False, spark=None):  # pragma: no cover
+def do_table_upload(table, source, overwrite=True, strict=True, spark=None):  # pragma: no cover
     spark = component.getUtility(IHiveSparkInstance) if spark is None else spark
     # Read file blind of schema - allow the
     # job to fail if a bad format is given
