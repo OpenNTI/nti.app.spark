@@ -34,31 +34,6 @@ class NoOpCM(object):
         pass
 
 
-class SharedConfiguringTestLayer(ZopeComponentLayer,
-                                 GCLayerMixin,
-                                 ConfiguringLayerMixin):
-
-    set_up_packages = ('nti.dataserver', 'nti.app.spark',)
-
-    @classmethod
-    def setUp(cls):
-        setHooks()
-        cls.setUpPackages()
-
-    @classmethod
-    def tearDown(cls):
-        cls.tearDownPackages()
-        zope.testing.cleanup.cleanUp()
-
-    @classmethod
-    def testSetUp(cls, unused_test=None):
-        setHooks()
-
-    @classmethod
-    def testTearDown(cls):
-        pass
-
-
 class SparkApplicationTestLayer(ApplicationTestLayer):
 
     @classmethod

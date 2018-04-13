@@ -15,7 +15,6 @@ from hamcrest import assert_that
 import os
 import time
 import shutil
-import unittest
 import tempfile
 from datetime import datetime
 
@@ -25,14 +24,17 @@ from nti.app.spark.common import get_site
 from nti.app.spark.common import save_source
 from nti.app.spark.common import get_redis_lock
 from nti.app.spark.common import parse_timestamp
-from nti.app.spark.tests import SharedConfiguringTestLayer
+
+from nti.app.spark.tests import SparkApplicationTestLayer
+
+from nti.app.testing.application_webtest import ApplicationLayerTest
 
 from nti.cabinet.mixins import SourceFile
 
 
-class TestCommon(unittest.TestCase):
+class TestCommon(ApplicationLayerTest):
 
-    layer = SharedConfiguringTestLayer
+    layer = SparkApplicationTestLayer
 
     def test_get_site(self):
         assert_that(get_site(None, object()), is_(none()))

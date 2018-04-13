@@ -13,23 +13,25 @@ from hamcrest import raises
 from hamcrest import calling
 from hamcrest import assert_that
 
-import unittest
-
 import fudge
 
 from nti.app.spark.processing import get_job_site
 
-from nti.app.spark.tests import SharedConfiguringTestLayer
+from nti.app.spark.tests import SparkApplicationTestLayer
+
+from nti.app.testing.application_webtest import ApplicationLayerTest
+
+from nti.app.testing.decorators import WithSharedApplicationMockDS
 
 from nti.dataserver.tests import mock_dataserver
 
 
-class TestProcessing(unittest.TestCase):
+class TestProcessing(ApplicationLayerTest):
 
-    layer = SharedConfiguringTestLayer
+    layer = SparkApplicationTestLayer
 
+    @WithSharedApplicationMockDS
     @fudge.patch('nti.app.spark.processing.get_site_for_site_names')
-    @mock_dataserver.WithMockDS
     def test_get_job_site(self, mock_gs):
         assert_that(get_job_site(None), is_not(none()))
         mock_gs.is_callable().returns(None)
