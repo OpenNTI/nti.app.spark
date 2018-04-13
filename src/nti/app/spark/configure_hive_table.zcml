@@ -21,4 +21,9 @@
 			 for="* * .views.hive_views.HiveTimeIndexedTable"
 			 name="timestamp" />
 
+	<adapter factory="._table_utils.ArchiveColumn"
+			 provides="z3c.table.interfaces.IColumn"
+			 for="* * .views.hive_views.HiveTimeIndexedTable"
+			 name="archive" />
+
 </configure>

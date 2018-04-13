@@ -8,16 +8,16 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from pyramid import httpexceptions as hexc
-
 from zope import component
 from zope import interface
 
 from zope.cachedescriptors.property import Lazy
 
 from zope.location.interfaces import IContained
+from zope.location.interfaces import LocationError
 
 from zope.traversing.interfaces import IPathAdapter
+from zope.traversing.interfaces import ITraversable
 
 from nti.app.spark import HIVE_ADAPTER
 from nti.app.spark import SPARK_ADAPTER
@@ -43,26 +43,12 @@ logger = __import__('logging').getLogger(__name__)
 
 
 @interface.implementer(IPathAdapter, IContained)
-class HivePathAdapter(object):
-
-    __name__ = HIVE_ADAPTER
-
+class AdapterMixin(object):
+    
     def __init__(self, context, request):
         self.context = context
         self.request = request
         self.__parent__ = context
-
-    def find_hive_table(self, key):
-        key = (key or '').lower()
-        for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            if table.table_name.lower() == key:
-                return table
-
-    def __getitem__(self, key):
-        table = self.find_hive_table(key)
-        if table is not None:
-            return table
-        raise KeyError(key) if key else hexc.HTTPNotFound()
 
     @Lazy
     def __acl__(self):
@@ -74,12 +60,23 @@ class HivePathAdapter(object):
         return acl
 
 
-@interface.implementer(IPathAdapter, IContained)
-class SparkPathAdapter(object):
+@interface.implementer(ITraversable)
+class HivePathAdapter(AdapterMixin):
 
+    __name__ = HIVE_ADAPTER
+
+    def find_hive_table(self, key):
+        key = (key or '').lower()
+        for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
+            if table.table_name.lower() == key:
+                return table
+    
+    def traverse(self, subpath, unused_remaining):
+        table = self.find_hive_table(subpath)
+        if table is None:
+            raise LocationError(subpath)
+        return table
+
+
+class SparkPathAdapter(AdapterMixin):
     __name__ = SPARK_ADAPTER
-
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
-        self.__parent__ = context

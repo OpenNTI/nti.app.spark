@@ -17,6 +17,8 @@ from z3c.table import column
 
 from zope.publisher.interfaces.browser import IBrowserRequest
 
+from nti.app.spark.utils import get_table_url
+
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -75,3 +77,19 @@ class TimestampColumn(column.Column):
         if timestamp is not None:
             tdt = datetime.fromtimestamp(timestamp) 
             return isodate.datetime_isoformat(tdt, isodate.DATE_EXT_COMPLETE)
+
+
+class ArchiveColumn(column.Column):
+
+    weight = 3
+
+    def _archive_button(self, item):
+        url = get_table_url(item, self.request) + '/@@archive'
+        result = """
+            <button type="button" class="btn btn-default btn-sm archiveButton" target_title="" action_url="%s" data-toggle="modal" data-target="#archiveModal">
+            %s</button>
+        """ % (url, 'Archive')
+        return result
+
+    def renderCell(self, item):
+        return self._archive_button(item)
