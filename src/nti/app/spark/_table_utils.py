@@ -93,3 +93,19 @@ class ArchiveColumn(column.Column):
 
     def renderCell(self, item):
         return self._archive_button(item)
+
+
+class ResetColumn(column.Column):
+
+    weight = 4
+
+    def _reset_button(self, item):
+        url = get_table_url(item, self.request) + '/@@reset'
+        result = """
+            <button type="button" class="btn btn-default btn-sm resetButton" target_title="" action_url="%s" data-toggle="modal" data-target="#resetModal">
+            %s</button>
+        """ % (url, 'Reset')
+        return result
+
+    def renderCell(self, item):
+        return self._reset_button(item)
