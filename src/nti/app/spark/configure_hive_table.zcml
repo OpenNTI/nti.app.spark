@@ -26,4 +26,9 @@
 			 for="* * .views.hive_views.HiveTimeIndexedTable"
 			 name="archive" />
 
+	<adapter factory="._table_utils.ResetColumn"
+			 provides="z3c.table.interfaces.IColumn"
+			 for="* * .views.hive_views.HiveTimeIndexedTable"
+			 name="reset" />
+
 </configure>
