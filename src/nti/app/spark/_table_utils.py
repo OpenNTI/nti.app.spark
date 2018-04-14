@@ -94,11 +94,11 @@ class TimestampsColumn(TimestampColumn):
     def renderCell(self, item):  # pragma: no cover        
         timestamps = item.timestamps
         result = ['<select class="cb cb-sm comboBox" id="tms-%s">' % item.__name__]
-        for timestamp in timestamps or ():
+        for timestamp in timestamps:
             result.append('<option value="%s">%s</option>' %
                           (timestamp, self.formatTimestamp(timestamp)))
         result.append('</select>')
-        return ''.join(result)
+        return ''.join(result) if timestamps else ''
 
 
 class ArchiveColumn(column.Column):
@@ -115,7 +115,7 @@ class ArchiveColumn(column.Column):
         return result
 
     def renderCell(self, item):
-        return self._archive_button(item)
+        return self._archive_button(item) if item.timestamp is not None else ''
 
 
 class UnarchiveColumn(column.Column):
@@ -132,7 +132,7 @@ class UnarchiveColumn(column.Column):
         return result
 
     def renderCell(self, item):
-        return self._unarchive_button(item)
+        return self._unarchive_button(item) if item.timestamps else ''
 
 
 class ResetColumn(column.Column):
@@ -149,4 +149,4 @@ class ResetColumn(column.Column):
         return result
 
     def renderCell(self, item):
-        return self._reset_button(item)
+        return self._reset_button(item) if item.timestamp is not None else ''
