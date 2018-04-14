@@ -94,7 +94,7 @@ class TimestampsColumn(TimestampColumn):
     def renderCell(self, item):  # pragma: no cover        
         timestamps = item.timestamps
         result = ['<select class="cb cb-sm comboBox" id="tms-%s">' % item.__name__]
-        for timestamp in timestamps:
+        for timestamp in timestamps or ():
             result.append('<option value="%s">%s</option>' %
                           (timestamp, self.formatTimestamp(timestamp)))
         result.append('</select>')
