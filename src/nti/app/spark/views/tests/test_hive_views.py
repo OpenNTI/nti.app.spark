@@ -37,7 +37,7 @@ class FakeTable(object):
     timestamp = 10
     external = True
     database = 'fake'
-    table_name = 'fake_table'
+    __name__ = table_name = 'fake_table'
 
     def reset(self):
         pass
@@ -50,7 +50,7 @@ class FakeTable(object):
 class FakeHistorical(FakeTable):
 
     timestamps = (10, 11)
-    table_name = 'fake_historical'
+    __name__ = table_name = 'fake_historical'
     
     def unarchive(self, *args):
         pass
@@ -112,6 +112,9 @@ class TestHiveViews(ApplicationLayerTest):
                                    status=204)
             
             self.testapp.get('/dataserver2/spark/hive/@@current',
+                             status=200)
+            
+            self.testapp.get('/dataserver2/spark/hive/@@historical',
                              status=200)
         finally:
             gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,

@@ -85,6 +85,7 @@
 	 
 	<!-- Tables -->
 	<include package="." file="configure_hive_table.zcml" />
+	<include package="." file="configure_historical_table.zcml" />
 	
 	<!-- Views -->
 	<include package=".views" />

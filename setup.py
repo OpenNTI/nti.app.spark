@@ -61,6 +61,7 @@ setup(
         'nti.app.pyramid_zope',
         'nti.asynchronous',
         'nti.base',
+        'nti.common',
         'nti.coremetadata',
         'nti.dublincore',
         'nti.externalization',
