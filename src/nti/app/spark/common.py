@@ -16,6 +16,7 @@ from datetime import date
 from datetime import datetime
 from six.moves import cPickle as pickle
 
+from redis_lock import AlreadyAcquired
 from redis_lock import Lock as RedisLock
 
 from zope import component
@@ -77,6 +78,18 @@ def unpickle(data):
 
 def get_redis_lock(name, expire=DEFAULT_LOCK_EXPIRY_TIME, strict=False):
     return RedisLock(redis_client(), name, expire, strict=strict)
+
+
+def is_locked_held(name):
+    result = True
+    lock = get_redis_lock(name)
+    try:
+        if lock.acquire(False):
+            lock.release()
+            result = False
+    except AlreadyAcquired:
+        pass
+    return result
 
 
 def parse_timestamp(timestamp):
