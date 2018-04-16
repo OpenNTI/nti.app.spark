@@ -17,11 +17,16 @@ from pyramid.view import view_defaults
 
 from requests.structures import CaseInsensitiveDict
 
-from zope import component
+from zope.component import getUtility
+from zope.component import getAllUtilitiesRegisteredFor
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
+from nti.app.externalization.error import raise_json_error
+
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
+
+from nti.app.spark import MessageFactory as _
 
 from nti.app.spark._table_utils import make_specific_table
 from nti.app.spark._table_utils import HiveTimeIndexedHistoricalTable
@@ -35,6 +40,7 @@ from nti.common.string import is_true
 from nti.dataserver import authorization as nauth
 
 from nti.spark.interfaces import IHiveTable
+from nti.spark.interfaces import IHiveSparkInstance 
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 logger = __import__('logging').getLogger(__name__)
@@ -65,6 +71,41 @@ class HiveTableHistoricalUnarchiveView(AbstractAuthenticatedView,
         return hexc.HTTPNoContent()
 
 
+@view_config(name="dropPartition")
+@view_config(name="drop_partition")
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='rest',
+               request_method='POST',
+               context=IArchivableHiveTimeIndexedHistorical,
+               permission=nauth.ACT_READ)
+class HiveTableHistoricalDropPartitionView(AbstractAuthenticatedView,
+                                           ModeledContentUploadRequestUtilsMixin):
+
+    def readInput(self, value=None):
+        result = None
+        if self.request.body:
+            result = super(HiveTableHistoricalDropPartitionView, self).readInput(value)
+        return CaseInsensitiveDict(result or {})
+
+    def __call__(self):
+        # pylint: disable=no-member
+        values = self.readInput()
+        timestamp = values.get('timestamp')
+        if not timestamp:
+            raise_json_error(self.request,
+                             hexc.HTTPUnprocessableEntity,
+                             {
+                                 'message': _(u"Must provide a timestamp"),
+                                 'field': 'timestamp',
+                             },
+                             None)
+        timestamp = parse_timestamp(values.get('timestamp'))
+        timestamp = time.mktime(timestamp.timetuple())
+        spark = getUtility(IHiveSparkInstance)
+        spark.drop_partition(self.context.table_name, timestamp)
+        return hexc.HTTPNoContent()
+
+
 @view_config(context=HivePathAdapter)
 @view_defaults(route_name="objects.generic.traversal",
                renderer="templates/historical.pt",
@@ -75,7 +116,7 @@ class HiveTimeIndexedHistoricalTableView(AbstractAuthenticatedView):
 
     def get_table(self):
         result = {}
-        for catalog in component.getAllUtilitiesRegisteredFor(IHiveTable):
+        for catalog in getAllUtilitiesRegisteredFor(IHiveTable):
             if IArchivableHiveTimeIndexedHistorical.providedBy(catalog):
                 result[catalog.table_name] = catalog
         return result
