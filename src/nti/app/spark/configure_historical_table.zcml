@@ -26,4 +26,9 @@
 			 for="* * .views.historical_views.HiveTimeIndexedHistoricalTable"
 			 name="unarchive" />
 
+	<adapter factory="._table_utils.DropPartitionColumn"
+			 provides="z3c.table.interfaces.IColumn"
+			 for="* * .views.historical_views.HiveTimeIndexedHistoricalTable"
+			 name="drop_partition" />
+
 </configure>
