@@ -20,9 +20,12 @@ from datetime import datetime
 
 import fudge
 
+from redis_lock import AlreadyAcquired
+
 from nti.app.spark.common import get_site
 from nti.app.spark.common import save_source
 from nti.app.spark.common import get_redis_lock
+from nti.app.spark.common import is_locked_held
 from nti.app.spark.common import parse_timestamp
 
 from nti.app.spark.tests import SparkApplicationTestLayer
@@ -59,3 +62,16 @@ class TestCommon(ApplicationLayerTest):
             assert_that(os.path.exists(name), is_(True))
         finally:
             shutil.rmtree(tmpdir)
+
+    @fudge.patch('nti.app.spark.common.RedisLock.acquire',
+                 'nti.app.spark.common.RedisLock.release')
+    def test_is_locked_held(self, mock_ac, mockl_rel):
+        mock_ac.is_callable().returns(True)
+        mockl_rel.is_callable().returns_fake()
+        assert_that(is_locked_held('foo'), is_(False))
+
+        mock_ac.is_callable().returns(False)
+        assert_that(is_locked_held('foo'), is_(True))
+
+        mock_ac.is_callable().raises(AlreadyAcquired)
+        assert_that(is_locked_held('foo'), is_(True))
