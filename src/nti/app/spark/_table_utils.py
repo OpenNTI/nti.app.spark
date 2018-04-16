@@ -150,3 +150,20 @@ class ResetColumn(column.Column):
 
     def renderCell(self, item):
         return self._reset_button(item) if item.timestamp is not None else ''
+
+
+class DropPartitionColumn(column.Column):
+
+    weight = 4
+
+    def _drop_button(self, item):
+        url = get_table_url(item, self.request) + '/@@drop_partition'
+        result = """
+            <button type="button" class="btn btn-default btn-sm dropButton" id="drp-%s"
+                    action_url="%s" data-toggle="modal" data-target="#dropModal">
+            %s</button>
+        """ % (item.__name__, url, 'Drop')
+        return result
+
+    def renderCell(self, item):
+        return self._drop_button(item) if item.timestamps else ''

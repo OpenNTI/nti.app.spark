@@ -39,8 +39,12 @@ from nti.common.string import is_true
 
 from nti.dataserver import authorization as nauth
 
+from nti.spark import TIMESTAMP
+
+from nti.spark.hive import get_timestamp
+
 from nti.spark.interfaces import IHiveTable
-from nti.spark.interfaces import IHiveSparkInstance 
+from nti.spark.interfaces import IHiveSparkInstance
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 logger = __import__('logging').getLogger(__name__)
@@ -100,9 +104,10 @@ class HiveTableHistoricalDropPartitionView(AbstractAuthenticatedView,
                              },
                              None)
         timestamp = parse_timestamp(values.get('timestamp'))
-        timestamp = time.mktime(timestamp.timetuple())
+        timestamp = get_timestamp(time.mktime(timestamp.timetuple()))
         spark = getUtility(IHiveSparkInstance)
-        spark.drop_partition(self.context.table_name, timestamp)
+        spark.drop_partition(self.context.table_name,
+                             {TIMESTAMP: timestamp})
         return hexc.HTTPNoContent()
 
 

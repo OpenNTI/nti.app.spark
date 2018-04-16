@@ -5,7 +5,7 @@
 	  xmlns:tal="http://xml.zope.org/namespaces/tal">
 	<head metal:use-macro="macro:mathplacement_head">
 		<metal:slot fill-slot="title">
-			<title>Hive Tables</title>
+			<title>Hive Historical Tables</title>
 		</metal:slot>
 	</head>
 	<body>
@@ -35,7 +35,24 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger" action_url="" id="confirm_unarchive_button">Confirm</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_unarchive_button">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Drop Partition Modal -->
+		<div class="modal fade" id="dropModal" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Are you sure you want to drop this partition?</h4>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" action_url="" id="confirm_drop_button">Confirm</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_drop_button">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -46,6 +63,13 @@
 				$(".unArchiveButton").click(function () {
 					$("#confirm_unarchive_button").attr('action_url', $(this).attr('action_url'))
 					$("#confirm_unarchive_button").attr('table', $(this).attr('id').substring(4))
+				})
+			});
+			
+			$(function () {
+				$(".dropButton").click(function () {
+					$("#confirm_drop_button").attr('action_url', $(this).attr('action_url'))
+					$("#confirm_drop_button").attr('table', $(this).attr('id').substring(4))
 				})
 			});
 			
@@ -64,6 +88,29 @@
 					processData: false,
 					success: function(result){
 						$("#unArchiveModal").modal('hide');
+					},
+					error: function(jqXHR, exception){
+						alert("An error occurred!")
+					}
+				});
+			});
+			
+			$(document).on("click", "#confirm_drop_button", function(event) {
+				url = $(this).attr('action_url')
+				table = $(this).attr('table');
+				cbox = document.getElementById("tms-" + table);
+				ts = cbox.options[cbox.selectedIndex].text;
+				$.ajax({
+					url: url,
+					method: 'POST',
+					data: JSON.stringify({
+						"timestamp":ts,
+					}),
+					dataType: 'json',
+					processData: false,
+					success: function(result){
+						$("#dropModal").modal('hide');
+						location.reload(true);
 					},
 					error: function(jqXHR, exception){
 						alert("An error occurred!")
