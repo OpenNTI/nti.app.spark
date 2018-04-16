@@ -5,7 +5,7 @@
 	  xmlns:tal="http://xml.zope.org/namespaces/tal">
 	<head metal:use-macro="macro:mathplacement_head">
 		<metal:slot fill-slot="title">
-			<title>Hive Tables</title>
+			<title>Hive Historical Tables</title>
 		</metal:slot>
 	</head>
 	<body>
