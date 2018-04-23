@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:metal="http://xml.zope.org/namespaces/metal"
 	  xmlns:tal="http://xml.zope.org/namespaces/tal">
-<head metal:define-macro="mathplacement_head">
+<head metal:define-macro="spark_head">
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title metal:define-slot="title"></title>
 
@@ -58,7 +58,7 @@
 
 </head>
 <body>
-	<script type="text/javascript" metal:define-macro="task_script">
+	<script type="text/javascript" metal:define-macro="spark_task_script">
 		function wait (milli) {
    			return new Promise(t => setTimeout(t, milli));
 		}

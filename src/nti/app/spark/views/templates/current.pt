@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	  xmlns:metal="http://xml.zope.org/namespaces/metal"
 	  xmlns:tal="http://xml.zope.org/namespaces/tal">
-	<head metal:use-macro="macro:mathplacement_head">
+	<head metal:use-macro="macro:spark_head">
 		<metal:slot fill-slot="title">
 			<title>Hive Tables</title>
 		</metal:slot>
