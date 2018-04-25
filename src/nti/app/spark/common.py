@@ -16,6 +16,8 @@ from datetime import date
 from datetime import datetime
 from six.moves import cPickle as pickle
 
+from pyramid.threadlocal import get_current_request
+
 from redis_lock import AlreadyAcquired
 from redis_lock import Lock as RedisLock
 
@@ -115,3 +117,12 @@ def save_source(source, path=None):
     with open(name, "w") as fp:
         fp.write(source)
     return extract_all(name)
+
+
+def get_ds2(request=None):
+    request = request if request else get_current_request()
+    try:
+        result = request.path_info_peek() if request else None
+    except AttributeError:  # in unit test we may see this
+        result = None
+    return result or "dataserver2"
