@@ -57,10 +57,10 @@
 			 provides="nti.dataserver.interfaces.IGroupMember" />
 
 	<!-- Jobs -->
-	<configure zcml:condition="not-have prodmode">
+	<configure zcml:condition="not-have learning_env">
 		<runner:registerImmediateProcessingQueue />
 	</configure>
-	<configure zcml:condition="have prodmode">
+	<configure zcml:condition="have learning_env">
 		<runner:registerProcessingQueue />
 	</configure>
 
