@@ -48,6 +48,9 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
     def create_upload_job(self, creator, target, timestamp, archive, strict):
         raise NotImplementedError()
 
+    def get_timestamp(self, values):
+        return parse_timestamp(values.get('timestamp'))
+
     def do_call(self, creator, timestamp, archive, strict=False):
         sources = get_all_sources(self.request)
         name, source = next(iter(sources.items()))
@@ -70,7 +73,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
         # pylint: disable=no-member
         creator = getattr(self.remoteUser, 'username', None) or SYSTEM_USER_ID
         # get parameters
+        timestamp = self.get_timestamp(data)
         strict = is_true(data.get('strict', False))
         archive = is_true(data.get('archive', True))
-        timestamp = parse_timestamp(data.get('timestamp'))
         return self.do_call(creator, timestamp, archive, strict)
