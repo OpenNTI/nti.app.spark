@@ -51,6 +51,12 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
     def get_timestamp(self, values):
         return parse_timestamp(values.get('timestamp'))
 
+    def validate(self, values):
+        """
+        Validate this request
+        """
+        pass
+
     def do_call(self, creator, timestamp, archive, strict=False):
         sources = get_all_sources(self.request)
         name, source = next(iter(sources.items()))
@@ -70,6 +76,7 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
 
     def __call__(self):  # pragma: no cover
         data = self.readInput()
+        self.validate(data)
         # pylint: disable=no-member
         creator = getattr(self.remoteUser, 'username', None) or SYSTEM_USER_ID
         # get parameters
