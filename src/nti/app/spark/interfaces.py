@@ -37,6 +37,9 @@ RID_SPARK = StringRole(RID_SPARK_PREFIX)
 #: Spark admin permission
 ACT_SPARK_ADMIN = Permission('nti.actions.spark.admin')
 
+#: Spark jobs permission
+ACT_SPARK_JOBS = Permission('nti.actions.spark.jobs')
+
 FAILED = u'Failed'
 PENDING = u'Pending'
 RUNNING = u'Running'
