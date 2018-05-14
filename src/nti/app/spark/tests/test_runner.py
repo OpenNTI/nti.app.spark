@@ -22,6 +22,7 @@ from nti.app.spark.runner import queue_job
 from nti.app.spark.runner import job_runner
 from nti.app.spark.runner import get_job_error
 from nti.app.spark.runner import get_job_status
+from nti.app.spark.runner import get_job_result
 from nti.app.spark.runner import create_generic_table_upload_job
 
 from nti.app.spark.tests import NoOpCM
@@ -39,7 +40,7 @@ from nti.dataserver.tests import mock_dataserver
 
 
 def good_job():
-    pass
+    return b'data'
 
 
 def failed_job():
@@ -67,6 +68,7 @@ class TestRunner(ApplicationLayerTest):
         # test status
         job_id = job.job_id
         assert_that(get_job_status(job_id), is_(SUCCESS))
+        assert_that(get_job_result(job_id), is_(b'data'))
 
     @WithSharedApplicationMockDS
     def test_failed_job(self):
