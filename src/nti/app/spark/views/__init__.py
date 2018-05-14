@@ -39,6 +39,9 @@ SPARK_JOB_ERROR = 'SparkJobError'
 #: Fetch the status of a spark job
 SPARK_JOB_STATUS = 'SparkJobStatus'
 
+#: Fetch the result of a spark job
+SPARK_JOB_RESULT = 'SparkJobResult'
+
 logger = __import__('logging').getLogger(__name__)
 
 
