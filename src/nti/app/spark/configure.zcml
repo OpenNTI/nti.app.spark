@@ -81,6 +81,11 @@
 					 pyramid.interfaces.IRequest"
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
 	
+	<subscriber factory=".decorators._SparkJobDecorator"
+				for="nti.app.spark.interfaces.ISparkJob
+					 pyramid.interfaces.IRequest"
+				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
+
 	<!-- Subscribers -->
 	<subscriber handler=".subscribers._closed_dataserver" />
 	 

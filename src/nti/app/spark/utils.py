@@ -27,6 +27,12 @@ def get_ds2(request=None):
     return result or "dataserver2"
 
 
+def get_spark_href(request=None):
+    ds2 = get_ds2(request)
+    href = '/%s/%s' % (ds2, SPARK_ADAPTER)
+    return href
+
+
 def get_table_href(context, request=None):
     ds2 = get_ds2(request)
     href = '/%s/%s/%s/%s' % (ds2, SPARK_ADAPTER, HIVE_ADAPTER,
