@@ -11,6 +11,7 @@ from __future__ import absolute_import
 import six
 import sys
 import time
+import zlib
 import shutil
 import tempfile
 import simplejson
@@ -97,6 +98,9 @@ def job_id_status(job_id):
 def job_id_error(job_id):
     return "%s=error" % job_id
 
+def job_id_result(job_id):
+    return "%s=result" % job_id
+
 
 def get_job_status(job_id):
     redis = redis_client()
@@ -119,6 +123,14 @@ def get_job_error(job_id):
         return result
 
 
+def get_job_result(job_id):
+    redis = redis_client()
+    if redis is not None:
+        key = job_id_result(job_id)
+        data = redis.get(key)
+        data = zlib.decompress(data) if data is not None else None
+        return data
+
 def update_job_status(job_id, status, expiry=EXPIRY_TIME):
     redis = redis_client()
     if redis is not None:
@@ -132,6 +144,14 @@ def update_job_error(job_id, error, expiry=EXPIRY_TIME):
     if redis is not None:
         key = job_id_error(job_id)
         redis.setex(key, value=error, time=expiry)
+        return key
+
+
+def update_job_result(job_id, data, expiry=EXPIRY_TIME):
+    redis = redis_client()
+    if redis is not None and isinstance(data, bytes):
+        key = job_id_result(job_id)
+        redis.setex(key, value=zlib.compress(data), time=expiry)
         return key
 
 
@@ -172,12 +192,12 @@ def run_job(job):
         func = job.callable
         args = job.callable_args or ()
         kws = job.callable_kwargs or {}
-        func(*args, **kws)
+        result = func(*args, **kws)
         # 3. clean on commit
-
         def after_commit_or_abort(success=False):
             if success:
                 update_job_status(job_id, SUCCESS)
+                update_job_result(job_id, result)
         transaction.get().addAfterCommitHook(after_commit_or_abort)
     except Exception as e:  # pylint: disable=broad-except
         logger.exception('Job %s failed', job_id)

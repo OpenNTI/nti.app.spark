@@ -53,3 +53,17 @@ class TestJobViews(ApplicationLayerTest):
         assert_that(res.json_body,
                     has_entries('jobId', is_('job'),
                                 'Error', is_('NPE')))
+        
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    @fudge.patch('nti.app.spark.views.job_views.get_job_result')
+    def test_get_job_result(self, mock_gje):
+        self.testapp.get('/dataserver2/spark/@@SparkJobResult',
+                         status=422)
+
+        mock_gje.is_callable().with_args().returns(None)
+        self.testapp.get('/dataserver2/spark/@@SparkJobResult?jobId=job',
+                         status=404)
+
+        mock_gje.is_callable().with_args().returns(b'data')
+        self.testapp.get('/dataserver2/spark/@@SparkJobResult?jobId=job',
+                         status=200)
