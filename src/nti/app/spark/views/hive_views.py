@@ -20,7 +20,7 @@ from nti.app.base.abstract_views import AbstractAuthenticatedView
 from nti.app.spark._table_utils import make_specific_table
 from nti.app.spark._table_utils import HiveTimeIndexedTable
 
-from nti.app.spark.runner import create_generic_table_upload_job
+from nti.app.spark.jobs import create_generic_table_upload_job
 
 from nti.app.spark.views import HivePathAdapter
 
