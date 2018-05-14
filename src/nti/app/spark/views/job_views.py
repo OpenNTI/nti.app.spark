@@ -27,6 +27,8 @@ from nti.app.renderers.interfaces import INoHrefInResponse
 
 from nti.app.spark import MessageFactory as _
 
+from nti.app.spark.interfaces import ACT_SPARK_JOBS
+
 from nti.app.spark.runner import get_job_error
 from nti.app.spark.runner import get_job_status
 from nti.app.spark.runner import get_job_result
@@ -36,8 +38,6 @@ from nti.app.spark.views import SPARK_JOB_RESULT
 from nti.app.spark.views import SPARK_JOB_STATUS
 
 from nti.app.spark.views import SparkPathAdapter
-
-from nti.dataserver import authorization as nauth
 
 from nti.externalization.interfaces import LocatedExternalDict
 
@@ -49,7 +49,7 @@ logger = __import__('logging').getLogger(__name__)
                renderer='rest',
                request_method='GET',
                context=SparkPathAdapter,
-               permission=nauth.ACT_READ)
+               permission=ACT_SPARK_JOBS)
 class SparkJobStatusView(AbstractAuthenticatedView):
 
     def __call__(self):
@@ -81,7 +81,7 @@ class SparkJobStatusView(AbstractAuthenticatedView):
                renderer='rest',
                request_method='GET',
                context=SparkPathAdapter,
-               permission=nauth.ACT_READ)
+               permission=ACT_SPARK_JOBS)
 class SparkJobErrorView(AbstractAuthenticatedView):
 
     def __call__(self):
@@ -113,7 +113,7 @@ class SparkJobErrorView(AbstractAuthenticatedView):
                renderer='rest',
                request_method='GET',
                context=SparkPathAdapter,
-               permission=nauth.ACT_READ)
+               permission=ACT_SPARK_JOBS)
 class SparkJobResultView(AbstractAuthenticatedView):
 
     def prepare_response(self, data):
