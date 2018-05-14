@@ -14,6 +14,8 @@ from zope import interface
 from zope.cachedescriptors.property import Lazy
 
 from nti.app.spark.interfaces import RID_SPARK
+ 
+from nti.app.spark.interfaces import ISparkJob
 
 from nti.dataserver.authorization import ROLE_ADMIN
 
@@ -35,8 +37,7 @@ class _ACLProviderMixin(object):
     def __init__(self, context):
         self.context = context
 
-    @Lazy
-    def __acl__(self):
+    def default_acl(self):
         aces = [
             ace_allowing(ROLE_ADMIN, ALL_PERMISSIONS, type(self)),
             ace_allowing(RID_SPARK, ALL_PERMISSIONS, type(self)),
@@ -44,7 +45,16 @@ class _ACLProviderMixin(object):
         acl = acl_from_aces(aces)
         return acl
 
+    @Lazy
+    def __acl__(self):
+        return self.default_acl()
+
 
 @component.adapter(IHiveTable)
 class _HiveTableACLProvider(_ACLProviderMixin):
+    pass
+
+
+@component.adapter(ISparkJob)
+class _SparkJobACLProvider(_ACLProviderMixin):
     pass
