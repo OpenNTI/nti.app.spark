@@ -48,7 +48,8 @@
 
 	<grant	permission="nti.actions.spark.admin"
 			role="role:nti.dataserver.spark" />
-
+	
+	<adapter factory=".acl._SparkJobACLProvider" />
 	<adapter factory=".acl._HiveTableACLProvider" />
 
 	<adapter name="NextthoughtDotComSpark"
