@@ -19,6 +19,7 @@ from nti.app.spark.common import get_redis_lock
 from nti.app.spark.runner import queue_job
 
 from nti.spark.interfaces import IHiveSparkInstance
+from nti.spark.interfaces import IArchivableHiveTimeIndexed
 
 from nti.spark.utils import csv_mode
 
@@ -27,7 +28,7 @@ logger = __import__('logging').getLogger(__name__)
 # generic upload job
 
 
-LOCK = "++etc++ou++%s++%s++lock"
+LOCK = "++etc++%s++%s++lock"
 
 
 def do_table_upload(table, source, overwrite=True, strict=True, spark=None):
@@ -58,3 +59,27 @@ def create_generic_table_upload_job(creator, source, context,
                                     overwrite=True, strict=False):
     return queue_job(creator, generic_upload_job,
                      args=(context, source, overwrite, strict))
+
+
+def reset_table_job(name):
+    context = component.getUtility(IArchivableHiveTimeIndexed, name=name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        context.reset()
+
+
+def create_table_reset_job(creator, name):
+    return queue_job(creator, generic_upload_job,
+                     args=(name,))
+
+
+def archive_table_job(name):
+    context = component.getUtility(IArchivableHiveTimeIndexed, name=name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        context.archive()
+
+
+def create_table_archive_job(creator, name):
+    return queue_job(creator, archive_table_job,
+                     args=(name,))

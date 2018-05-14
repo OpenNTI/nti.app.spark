@@ -17,6 +17,7 @@ import fudge
 from zope import component
 from zope import interface
 
+from nti.app.spark.tests import NoOpCM
 from nti.app.spark.tests import SparkApplicationTestLayer
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
@@ -89,8 +90,7 @@ class TestHiveViews(ApplicationLayerTest):
                                    status=200)
             assert_that(res.json_body,
                         has_entries('database', 'fake',
-                                    'table', 'fake_table',
-                                    'timestamp', 10))
+                                    'table', 'fake_table'))
 
             res = self.testapp.get('/dataserver2/spark/hive/fake_historical',
                                    status=200)
@@ -98,12 +98,6 @@ class TestHiveViews(ApplicationLayerTest):
                         has_entries('database', 'fake',
                                     'table', 'fake_historical',
                                     'timestamps', [10, 11]))
-
-            self.testapp.post('/dataserver2/spark/hive/fake_table/@@reset',
-                              status=204)
-
-            self.testapp.post('/dataserver2/spark/hive/fake_table/@@archive',
-                              status=204)
 
             self.testapp.post_json('/dataserver2/spark/hive/fake_historical/@@unarchive',
                                    {
@@ -121,6 +115,23 @@ class TestHiveViews(ApplicationLayerTest):
                                   'fake_table')
             gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
                                   'fake_historical')
+
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    @fudge.patch('nti.app.spark.jobs.get_redis_lock')
+    def test_table_archive_reset(self, mock_grl):
+        fake_table = FakeTable()
+        mock_grl.is_callable().returns(NoOpCM())
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_table, IArchivableHiveTimeIndexed,
+                                'fake_table')
+            for name in ('archive', 'reset'):
+                self.testapp.post('/dataserver2/spark/hive/fake_table/@@' + name,
+                                  status=200)
+        finally:
+            gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
+                                  'fake_table')
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     @fudge.patch('nti.app.spark.views.hive_views.create_generic_table_upload_job',

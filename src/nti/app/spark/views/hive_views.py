@@ -20,6 +20,8 @@ from nti.app.base.abstract_views import AbstractAuthenticatedView
 from nti.app.spark._table_utils import make_specific_table
 from nti.app.spark._table_utils import HiveTimeIndexedTable
 
+from nti.app.spark.jobs import create_table_reset_job
+from nti.app.spark.jobs import create_table_archive_job
 from nti.app.spark.jobs import create_generic_table_upload_job
 
 from nti.app.spark.views import HivePathAdapter
@@ -95,8 +97,8 @@ class HiveTableResetView(AbstractAuthenticatedView):
 
     def __call__(self):
         # pylint: disable=no-member
-        self.context.reset()
-        return hexc.HTTPNoContent()
+        return create_table_reset_job(self.remoteUser.username,
+                                      self.context.table_name)
 
 
 @view_config(name="archive")
@@ -109,8 +111,8 @@ class HiveTableArchiveView(AbstractAuthenticatedView):
 
     def __call__(self):
         # pylint: disable=no-member
-        self.context.archive()
-        return hexc.HTTPNoContent()
+        return create_table_archive_job(self.remoteUser.username,
+                                        self.context.table_name)
 
 
 @view_config(name="upload")
