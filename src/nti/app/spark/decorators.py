@@ -100,22 +100,19 @@ class _SparkJobDecorator(AbstractAuthenticatedRequestAwareDecorator):
     Decorate spark job links
     """
 
-    LINKS = (SPARK_JOB_ERROR, SPARK_JOB_STATUS, SPARK_JOB_RESULT)
+    LINKS = ( ('error,', SPARK_JOB_ERROR), 
+              ('status', SPARK_JOB_STATUS), 
+              ('result', SPARK_JOB_RESULT))
 
     def _predicate(self, context, unused_result):
         # pylint: disable=too-many-function-args
         return bool(self.authenticated_userid) \
            and has_permission(ACT_READ, context, self.request)
 
-    def _generate_links(self, names, links, root_url):
-        for lnk in names or ():
-            links.append(Link(root_url, elements=('@@%s' % lnk,),
-                              rel=lnk))
-
     def _do_decorate_external(self, context, result):
         spark_url = get_spark_href(self.request)
         links = result.setdefault(LINKS, [])
-        params =  {'jobId': context.id}
-        for name in self.LINKS:
-            result = links.append(Link(spark_url, elements=(name,),
+        params =  {'jobId': context.JobId}
+        for rel, name in self.LINKS:
+            result = links.append(Link(spark_url, elements=(name,), rel=rel,
                                        params=params, method='GET'))
