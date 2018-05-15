@@ -58,6 +58,7 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
+        'gevent',
         'nti.app.pyramid_zope',
         'nti.asynchronous',
         'nti.base',

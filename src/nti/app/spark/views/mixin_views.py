@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import gevent
+
 from requests.structures import CaseInsensitiveDict
 
 from pyramid import httpexceptions as hexc
@@ -22,6 +24,13 @@ from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtils
 from nti.app.spark import MessageFactory as _
 
 from nti.app.spark.common import parse_timestamp
+
+from nti.app.spark.runner import get_job_status
+
+from nti.app.spark.interfaces import FAILED
+from nti.app.spark.interfaces import PENDING
+from nti.app.spark.interfaces import RUNNING
+from nti.app.spark.interfaces import SUCCESS
 
 from nti.cabinet.mixins import NamedSource
 
@@ -84,3 +93,22 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
         strict = is_true(data.get('strict', False))
         archive = is_true(data.get('archive', True))
         return self.do_call(creator, timestamp, archive, strict)
+
+
+class MonitorJobMixin(object):
+
+    def monitor(self, job_id, wait_time=1):
+        status = get_job_status(job_id)
+        while status in (PENDING, RUNNING, None) :
+            if status is None:
+                raise_json_error(self.request,
+                                 hexc.HTTPUnprocessableEntity,
+                                 {
+                                     'message': _(u"Invalid jobId"),
+                                     'code': 'Invalid job id',
+                                 },
+                                 None)
+            if status not in (FAILED, SUCCESS):
+                gevent.sleep(wait_time)
+            status = get_job_status(job_id)
+        return status

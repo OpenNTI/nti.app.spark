@@ -17,8 +17,12 @@ import fudge
 
 from pyramid import httpexceptions as hexc
 
+from nti.app.spark.interfaces import PENDING
+from nti.app.spark.interfaces import SUCCESS
+
 from nti.app.spark.views.mixin_views import DEFAULT_MAX_SOURCE_SIZE
 
+from nti.app.spark.views.mixin_views import MonitorJobMixin
 from nti.app.spark.views.mixin_views import AbstractHiveUploadView
 
 from nti.cabinet.mixins import SourceFile
@@ -56,3 +60,17 @@ class TestMixinViews(unittest.TestCase):
         assert_that(view.max_file_length(), is_(DEFAULT_MAX_SOURCE_SIZE))
         with self.assertRaises(NotImplementedError):
             view.create_upload_job("creator", "target", 100, True, False)
+
+    def test_monitor_422(self):
+        view = MonitorJobMixin()
+        view.request = None
+        with self.assertRaises(hexc.HTTPUnprocessableEntity):
+            view.monitor("job_id")
+
+    @fudge.patch('nti.app.spark.views.mixin_views.get_job_status')
+    def test_monitor_coverage(self, mock_gjs):
+        view = MonitorJobMixin()
+        mock_gjs.is_callable().returns(PENDING) \
+                              .next_call() \
+                              .returns(SUCCESS)
+        assert_that(view.monitor("job_id"), is_(SUCCESS))
