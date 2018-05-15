@@ -23,6 +23,8 @@ import fudge
 from redis_lock import AlreadyAcquired
 
 from nti.app.spark.common import get_site
+from nti.app.spark.common import unpickle
+from nti.app.spark.common import pickle_dump
 from nti.app.spark.common import save_source
 from nti.app.spark.common import get_redis_lock
 from nti.app.spark.common import is_locked_held
@@ -45,6 +47,10 @@ class TestCommon(ApplicationLayerTest):
     def test_parse_timestamp(self):
         assert_that(parse_timestamp(time.time()), is_(datetime))
         assert_that(parse_timestamp('2017-11-30'), is_(datetime))
+    
+    def test_pickle(self):
+        data = pickle_dump(b'data')
+        assert_that(unpickle(data), is_(b'data'))
 
     @fudge.patch('nti.app.spark.common.RedisLock')
     def test_get_redis_lock(self, mock_rl):
