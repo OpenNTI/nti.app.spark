@@ -140,5 +140,5 @@ class SparkJobResultView(AbstractAuthenticatedView):
         data = get_job_result(job_id)
         if data is None:
             raise hexc.HTTPNotFound()
-        response = self.prepare_response(data)
+        response = self.prepare_response(data) if isinstance(data, bytes) else data
         return response
