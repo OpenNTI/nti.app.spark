@@ -18,10 +18,13 @@ from nti.app.spark.common import get_redis_lock
 
 from nti.app.spark.runner import queue_job
 
+from nti.spark import TIMESTAMP
+
+from nti.spark.interfaces import IHiveTable
 from nti.spark.interfaces import IHiveSparkInstance
-from nti.spark.interfaces import IArchivableHiveTimeIndexed
 
 from nti.spark.utils import csv_mode
+from nti.spark.utils import get_timestamp
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -62,7 +65,7 @@ def create_generic_table_upload_job(creator, source, context,
 
 
 def reset_table_job(name):
-    context = component.getUtility(IArchivableHiveTimeIndexed, name=name)
+    context = component.getUtility(IHiveTable, name)
     table_lock = LOCK % (context.database, context.table_name)
     with get_redis_lock(table_lock):
         context.reset()
@@ -74,7 +77,7 @@ def create_table_reset_job(creator, name):
 
 
 def archive_table_job(name):
-    context = component.getUtility(IArchivableHiveTimeIndexed, name=name)
+    context = component.getUtility(IHiveTable, name)
     table_lock = LOCK % (context.database, context.table_name)
     with get_redis_lock(table_lock):
         context.archive()
@@ -83,3 +86,18 @@ def archive_table_job(name):
 def create_table_archive_job(creator, name):
     return queue_job(creator, archive_table_job,
                      args=(name,))
+
+
+def drop_partition_job(name, timestamp):
+    context = component.getUtility(IHiveTable, name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        tstamp = get_timestamp(timestamp)
+        spark = component.getUtility(IHiveSparkInstance)
+        spark.drop_partition(context.table_name,
+                             {TIMESTAMP: tstamp})
+
+
+def create_drop_partition_job(creator, name, timestamp):
+    return queue_job(creator, drop_partition_job,
+                     args=(name, timestamp))
