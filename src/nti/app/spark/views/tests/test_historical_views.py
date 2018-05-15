@@ -25,6 +25,7 @@ from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 class FakeHistorical(object):
 
     timestamps = (10, 11)
+
     __name__ = table_name = 'fake_historical'
 
 
@@ -33,13 +34,10 @@ class TestHistoricalViews(ApplicationLayerTest):
     layer = SparkApplicationTestLayer
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
-    @fudge.patch("nti.app.spark.views.historical_views.getUtility")
+    @fudge.patch("nti.app.spark.views.historical_views.create_drop_partition_job")
     def test_spark_tables(self, mock_gu):
         fake_historical = FakeHistorical()
-        # fake spark/hive
-        hive = fudge.Fake()
-        hive.provides("drop_partition").returns_fake()
-        mock_gu.is_callable().returns(hive)
+        mock_gu.is_callable().returns('jobid')
         try:
             gsm = component.getGlobalSiteManager()
             gsm.registerUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
@@ -52,7 +50,7 @@ class TestHistoricalViews(ApplicationLayerTest):
                                    {
                                        "timestamp": "2018-04-02",
                                    },
-                                   status=204)
+                                   status=200)
         finally:
             gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
                                   'fake_historical')
