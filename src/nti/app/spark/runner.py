@@ -89,6 +89,7 @@ def job_id_status(job_id):
 def job_id_error(job_id):
     return "%s=error" % job_id
 
+
 def job_id_result(job_id):
     return "%s=result" % job_id
 
@@ -121,6 +122,7 @@ def get_job_result(job_id):
         data = redis.get(key)
         data = zlib.decompress(data) if data is not None else None
         return data
+
 
 def update_job_status(job_id, status, expiry=EXPIRY_TIME):
     redis = redis_client()
@@ -184,7 +186,7 @@ def run_job(job):
         args = job.callable_args or ()
         kws = job.callable_kwargs or {}
         result = func(*args, **kws)
-        # 3. clean on commit
+        # 3. update on commit
         def after_commit_or_abort(success=False):
             if success:
                 update_job_status(job_id, SUCCESS)
