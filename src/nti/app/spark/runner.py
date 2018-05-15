@@ -11,7 +11,6 @@ from __future__ import absolute_import
 import six
 import sys
 import time
-import zlib
 import simplejson
 
 import transaction
@@ -120,7 +119,7 @@ def get_job_result(job_id):
     if redis is not None:
         key = job_id_result(job_id)
         data = redis.get(key)
-        data = zlib.decompress(data) if data is not None else None
+        data = unpickle(data) if data is not None else None
         return data
 
 
@@ -142,9 +141,9 @@ def update_job_error(job_id, error, expiry=EXPIRY_TIME):
 
 def update_job_result(job_id, data, expiry=EXPIRY_TIME):
     redis = redis_client()
-    if redis is not None and isinstance(data, bytes):
+    if redis is not None:
         key = job_id_result(job_id)
-        redis.setex(key, value=zlib.compress(data), time=expiry)
+        redis.setex(key, value=pickle_dump(data), time=expiry)
         return key
 
 
