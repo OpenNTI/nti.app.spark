@@ -18,12 +18,8 @@ import fudge
 
 from nti.app.spark.scripts.nti_spark_runner import Constructor
 
-from nti.app.spark.tests import SharedConfiguringTestLayer
-
 
 class TestRunner(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     @fudge.patch('nti.app.spark.scripts.nti_spark_runner.create_context')
     def test_create_context(self, mock_cc):

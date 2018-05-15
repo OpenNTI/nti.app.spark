@@ -35,8 +35,6 @@
 		modules=".model" />
 
 	<adapter factory=".externalization._HiveTableExternal" />
-	<adapter factory=".externalization._ArchivableHiveTimeIndexedExternal" />
-	<adapter factory=".externalization._ArchivableHiveTimeIndexedHistoricalExternal" />
 
     <!-- ACLs -->
 	<role id="role:nti.dataserver.spark"
