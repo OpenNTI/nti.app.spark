@@ -62,15 +62,10 @@ class TestHiveViews(ApplicationLayerTest):
     layer = SparkApplicationTestLayer
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
-    @fudge.patch("nti.app.spark.externalization.getUtility")
-    def test_spark_tables(self, mock_gu):
+    def test_spark_tables(self):
         fake_table = FakeTable()
         fake_historical = FakeHistorical()
         # fake spark/hive
-        hive = fudge.Fake()
-        hive.provides("get_table_schema").returns({'partition': []})
-        hive.provides("table_exists").returns(True)
-        mock_gu.is_callable().returns(hive)
         try:
             gsm = component.getGlobalSiteManager()
             gsm.registerUtility(fake_table, IArchivableHiveTimeIndexed,
@@ -96,8 +91,7 @@ class TestHiveViews(ApplicationLayerTest):
                                    status=200)
             assert_that(res.json_body,
                         has_entries('database', 'fake',
-                                    'table', 'fake_historical',
-                                    'timestamps', [10, 11]))
+                                    'table', 'fake_historical'))
 
             self.testapp.post_json('/dataserver2/spark/hive/fake_historical/@@unarchive',
                                    {
