@@ -12,6 +12,9 @@ import fudge
 from zope import component
 from zope import interface
 
+from nti.app.spark.interfaces import SUCCESS, FAILED
+
+from nti.app.spark.tests import NoOpCM
 from nti.app.spark.tests import SparkApplicationTestLayer
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
@@ -26,6 +29,7 @@ class FakeHistorical(object):
 
     timestamps = (10, 11)
 
+    database = 'fake_database'
     __name__ = table_name = 'fake_historical'
 
     def unarchive(self, *args, **kwargs):
@@ -71,6 +75,28 @@ class TestHistoricalViews(ApplicationLayerTest):
                                        "timestamp": "2018-04-02",
                                    },
                                    status=200)
+        finally:
+            gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
+                                  'fake_historical')
+            
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    @fudge.patch('nti.app.spark.jobs.get_redis_lock',
+                 'nti.app.spark.views.historical_views.HiveTableHistoricalTimestampsView.monitor')
+    def test_timestamps(self, mock_grl, mock_mon):
+        fake_historical = FakeHistorical()
+        mock_grl.is_callable().returns(NoOpCM())
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
+                                'fake_historical')
+            
+            mock_mon.is_callable().returns(SUCCESS)
+            self.testapp.get('/dataserver2/spark/hive/fake_historical/@@timestamps',
+                             status=200)
+            
+            mock_mon.is_callable().returns(FAILED)
+            self.testapp.get('/dataserver2/spark/hive/fake_historical/@@timestamps',
+                             status=422)
         finally:
             gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
                                   'fake_historical')

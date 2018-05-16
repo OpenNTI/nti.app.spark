@@ -114,3 +114,27 @@ def unarchive_table_job(name, timestamp, archive):
 def create_table_unarchive_job(creator, name, timestamp, archive):
     return queue_job(creator, unarchive_table_job,
                      args=(name, timestamp, archive))
+
+
+def timestamp_table_job(name):
+    context = component.getUtility(IHiveTable, name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        return context.timestamp
+
+
+def create_table_timestamp_job(creator, name):
+    return queue_job(creator, timestamp_table_job,
+                     args=(name,))
+
+
+def timestamps_table_job(name):
+    context = component.getUtility(IHiveTable, name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        return context.timestamps
+
+
+def create_table_timestamps_job(creator, name):
+    return queue_job(creator, timestamps_table_job,
+                     args=(name,))

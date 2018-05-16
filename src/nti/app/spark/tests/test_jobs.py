@@ -19,6 +19,8 @@ from zope import component
 
 from nti.app.spark.jobs import create_table_archive_job
 from nti.app.spark.jobs import create_drop_partition_job
+from nti.app.spark.jobs import create_table_timestamp_job
+from nti.app.spark.jobs import create_table_timestamps_job
 from nti.app.spark.jobs import create_generic_table_upload_job
 
 from nti.app.spark.tests import NoOpCM
@@ -34,8 +36,12 @@ from nti.spark.interfaces import IHiveTable
 
 
 class FakeTable(object):
+
     database = 'fake'
     table_name = 'fake'
+
+    timestamp = 10
+    timestamps = (10,)
 
     def archive(self, *args, **kwargs):
         pass
@@ -98,5 +104,19 @@ class TestJobs(ApplicationLayerTest):
             gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
             job = create_table_archive_job("pgreazy", 'fake_table')
             assert_that(job, is_not(none()))
+        finally:
+            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+
+    @WithSharedApplicationMockDS
+    @fudge.patch('nti.app.spark.jobs.get_redis_lock')
+    def test_create_timestamps_job(self, mock_grl):
+        fake_table = FakeTable()
+        mock_grl.is_callable().returns(NoOpCM())
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
+            for m in (create_table_timestamp_job, create_table_timestamps_job):
+                job = m("pgreazy", 'fake_table')
+                assert_that(job, is_not(none()))
         finally:
             gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
