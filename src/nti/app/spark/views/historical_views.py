@@ -30,10 +30,17 @@ from nti.app.spark._table_utils import HiveTimeIndexedHistoricalTable
 
 from nti.app.spark.common import parse_timestamp
 
+from nti.app.spark.interfaces import SUCCESS
+
 from nti.app.spark.jobs import create_drop_partition_job
 from nti.app.spark.jobs import create_table_unarchive_job
+from nti.app.spark.jobs import create_table_timestamps_job
+
+from nti.app.spark.runner import get_job_result
 
 from nti.app.spark.views import HivePathAdapter
+
+from nti.app.spark.views.mixin_views import MonitorJobMixin
 
 from nti.common.string import is_true
 
@@ -43,6 +50,7 @@ from nti.spark.hive import get_timestamp
 
 from nti.spark.interfaces import IHiveTable
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
+
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -107,6 +115,31 @@ class HiveTableHistoricalDropPartitionView(AbstractAuthenticatedView,
         return create_drop_partition_job(self.remoteUser.username,
                                          self.context.table_name,
                                          timestamp)
+
+
+@view_config(name="timestamps")
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='rest',
+               request_method='GET',
+               context=IArchivableHiveTimeIndexedHistorical,
+               permission=nauth.ACT_READ)
+class HiveTableHistoricalTimestampsView(AbstractAuthenticatedView,
+                                        MonitorJobMixin):
+
+    def __call__(self):
+        # pylint: disable=no-member
+        job = create_table_timestamps_job(self.remoteUser.username,
+                                          self.context.table_name)
+        result = self.monitor(job.jobId)
+        if result == SUCCESS:
+            return get_job_result(job.jobId) or ()
+        raise_json_error(self.request,
+                         hexc.HTTPUnprocessableEntity,
+                         {
+                             'message': _(u"Cannot get timestamps"),
+                             'code': 'CannotGetTimeStamps',
+                         },
+                         None)
 
 
 @view_config(context=HivePathAdapter)
