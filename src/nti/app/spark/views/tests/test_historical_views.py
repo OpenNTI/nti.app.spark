@@ -28,6 +28,9 @@ class FakeHistorical(object):
 
     __name__ = table_name = 'fake_historical'
 
+    def unarchive(self, *args, **kwargs):
+        pass
+    
 
 class TestHistoricalViews(ApplicationLayerTest):
 
@@ -56,10 +59,8 @@ class TestHistoricalViews(ApplicationLayerTest):
                                   'fake_historical')
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
-    @fudge.patch("nti.app.spark.views.historical_views.create_table_unarchive_job")
-    def test_unarchive(self, mock_gu):
+    def test_unarchive(self):
         fake_historical = FakeHistorical()
-        mock_gu.is_callable().returns('jobid')
         try:
             gsm = component.getGlobalSiteManager()
             gsm.registerUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
