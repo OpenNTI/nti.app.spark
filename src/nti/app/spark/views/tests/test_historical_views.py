@@ -35,7 +35,7 @@ class TestHistoricalViews(ApplicationLayerTest):
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     @fudge.patch("nti.app.spark.views.historical_views.create_drop_partition_job")
-    def test_spark_tables(self, mock_gu):
+    def test_drop_partition(self, mock_gu):
         fake_historical = FakeHistorical()
         mock_gu.is_callable().returns('jobid')
         try:
@@ -47,6 +47,25 @@ class TestHistoricalViews(ApplicationLayerTest):
                               status=422)
 
             self.testapp.post_json('/dataserver2/spark/hive/fake_historical/@@drop_partition',
+                                   {
+                                       "timestamp": "2018-04-02",
+                                   },
+                                   status=200)
+        finally:
+            gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
+                                  'fake_historical')
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    @fudge.patch("nti.app.spark.views.historical_views.create_table_unarchive_job")
+    def test_unarchive(self, mock_gu):
+        fake_historical = FakeHistorical()
+        mock_gu.is_callable().returns('jobid')
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
+                                'fake_historical')
+
+            self.testapp.post_json('/dataserver2/spark/hive/fake_historical/@@unarchive',
                                    {
                                        "timestamp": "2018-04-02",
                                    },

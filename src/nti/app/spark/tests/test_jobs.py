@@ -17,6 +17,7 @@ import fudge
 
 from zope import component
 
+from nti.app.spark.jobs import create_table_archive_job
 from nti.app.spark.jobs import create_drop_partition_job
 from nti.app.spark.jobs import create_generic_table_upload_job
 
@@ -36,7 +37,13 @@ class FakeTable(object):
     database = 'fake'
     table_name = 'fake'
 
+    def archive(self, *args, **kwargs):
+        pass
+
     def update(self, *args, **kwargs):
+        pass
+
+    def unarchive(self, *args, **kwargs):
         pass
 
 
@@ -77,6 +84,19 @@ class TestJobs(ApplicationLayerTest):
             gsm = component.getGlobalSiteManager()
             gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
             job = create_drop_partition_job("pgreazy", 'fake_table', 10)
+            assert_that(job, is_not(none()))
+        finally:
+            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+
+    @WithSharedApplicationMockDS
+    @fudge.patch('nti.app.spark.jobs.get_redis_lock')
+    def test_create_archive_job(self, mock_grl):
+        fake_table = FakeTable()
+        mock_grl.is_callable().returns(NoOpCM())
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
+            job = create_table_archive_job("pgreazy", 'fake_table')
             assert_that(job, is_not(none()))
         finally:
             gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
