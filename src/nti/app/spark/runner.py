@@ -185,11 +185,12 @@ def run_job(job):
         args = job.callable_args or ()
         kws = job.callable_kwargs or {}
         result = func(*args, **kws)
-        # 3. update on commit
+        # 3. update result as early as possible
+        update_job_result(job_id, result)
+        # 4. update on commit
         def after_commit_or_abort(success=False):
             if success:
                 update_job_status(job_id, SUCCESS)
-                update_job_result(job_id, result)
         transaction.get().addAfterCommitHook(after_commit_or_abort)
     except Exception as e:  # pylint: disable=broad-except
         logger.exception('Job %s failed', job_id)
