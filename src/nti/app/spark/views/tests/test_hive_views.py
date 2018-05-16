@@ -92,12 +92,6 @@ class TestHiveViews(ApplicationLayerTest):
             assert_that(res.json_body,
                         has_entries('database', 'fake',
                                     'table', 'fake_historical'))
-
-            self.testapp.post_json('/dataserver2/spark/hive/fake_historical/@@unarchive',
-                                   {
-                                       "timestamp": "2018-04-02",
-                                   },
-                                   status=204)
             
             self.testapp.get('/dataserver2/spark/hive/@@current',
                              status=200)
