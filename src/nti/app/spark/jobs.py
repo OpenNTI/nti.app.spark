@@ -101,3 +101,16 @@ def drop_partition_job(name, timestamp):
 def create_drop_partition_job(creator, name, timestamp):
     return queue_job(creator, drop_partition_job,
                      args=(name, timestamp))
+
+
+def unarchive_table_job(name, timestamp, archive):
+    context = component.getUtility(IHiveTable, name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        timestamp = get_timestamp(timestamp)
+        context.unarchive(timestamp, archive)
+
+
+def create_table_unarchive_job(creator, name, timestamp, archive):
+    return queue_job(creator, unarchive_table_job,
+                     args=(name, timestamp, archive))

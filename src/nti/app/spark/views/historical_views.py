@@ -8,8 +8,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import time
-
 from pyramid import httpexceptions as hexc
 
 from pyramid.view import view_config
@@ -33,6 +31,7 @@ from nti.app.spark._table_utils import HiveTimeIndexedHistoricalTable
 from nti.app.spark.common import parse_timestamp
 
 from nti.app.spark.jobs import create_drop_partition_job
+from nti.app.spark.jobs import create_table_unarchive_job
 
 from nti.app.spark.views import HivePathAdapter
 
@@ -68,9 +67,11 @@ class HiveTableHistoricalUnarchiveView(AbstractAuthenticatedView,
         values = self.readInput()
         archive = is_true(values.get('archive'))
         timestamp = parse_timestamp(values.get('timestamp'))
-        timestamp = time.mktime(timestamp.timetuple())
-        self.context.unarchive(timestamp, archive)
-        return hexc.HTTPNoContent()
+        timestamp = get_timestamp(timestamp)
+        return create_table_unarchive_job(self.remoteUser.username,
+                                          self.context.table_name,
+                                          timestamp,
+                                          archive)
 
 
 @view_config(name="dropPartition")
