@@ -44,9 +44,9 @@ FAILED = u'Failed'
 PENDING = u'Pending'
 RUNNING = u'Running'
 SUCCESS = u'Success'
-RENDER_STATES = (SUCCESS, PENDING, FAILED, RUNNING)
-RENDER_STATE_VOCABULARY = SimpleVocabulary(
-    [SimpleTerm(x) for x in RENDER_STATES]
+JOB_STATES = (SUCCESS, PENDING, FAILED, RUNNING)
+JOB_STATE_VOCABULARY = SimpleVocabulary(
+    [SimpleTerm(x) for x in JOB_STATES]
 )
 
 
@@ -57,7 +57,7 @@ class ISparkJob(ILastModified, ICreated, IZContained):
 
     JobId = ValidTextLine(title=u"The unique job identifier.")
 
-    State = Choice(vocabulary=RENDER_STATE_VOCABULARY,
+    State = Choice(vocabulary=JOB_STATE_VOCABULARY,
                    title=u"The state for this render job",
                    required=False,
                    default=PENDING)
