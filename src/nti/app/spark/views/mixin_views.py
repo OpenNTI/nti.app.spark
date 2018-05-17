@@ -97,9 +97,13 @@ class AbstractHiveUploadView(AbstractAuthenticatedView,
 
 class MonitorJobMixin(object):
 
-    def monitor(self, job_id, wait_time=1):
+    DEFAULT_WAIT_TIME = 1
+    MAX_ITERATIONS = 3600
+
+    def monitor(self, job_id, wait_time=DEFAULT_WAIT_TIME, iterations=MAX_ITERATIONS):
+        count = 0
         status = get_job_status(job_id)
-        while status in (PENDING, RUNNING, None) :
+        while status in (PENDING, RUNNING, None) and count <=iterations:
             if status is None:
                 raise_json_error(self.request,
                                  hexc.HTTPUnprocessableEntity,
@@ -110,5 +114,6 @@ class MonitorJobMixin(object):
                                  None)
             if status not in (FAILED, SUCCESS):
                 gevent.sleep(wait_time)
+            count += 1
             status = get_job_status(job_id)
         return status
