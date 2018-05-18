@@ -15,13 +15,13 @@ from zope import interface
 
 from nti.app.renderers.decorators import AbstractAuthenticatedRequestAwareDecorator
 
+from nti.app.spark import SPARK_JOB_ERROR
+from nti.app.spark import SPARK_JOB_RESULT
+from nti.app.spark import SPARK_JOB_STATUS
+
 from nti.app.spark.interfaces import ISparkJob
 
 from nti.app.spark.utils import get_spark_href
-
-from nti.app.spark.views import SPARK_JOB_ERROR
-from nti.app.spark.views import SPARK_JOB_RESULT
-from nti.app.spark.views import SPARK_JOB_STATUS
 
 from nti.appserver.pyramid_authorization import has_permission
 
