@@ -12,7 +12,8 @@ import fudge
 from zope import component
 from zope import interface
 
-from nti.app.spark.interfaces import SUCCESS, FAILED
+from nti.app.spark.interfaces import FAILED
+from nti.app.spark.interfaces import SUCCESS
 
 from nti.app.spark.tests import NoOpCM
 from nti.app.spark.tests import SparkApplicationTestLayer

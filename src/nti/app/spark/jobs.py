@@ -17,6 +17,7 @@ from nti.app.spark.common import save_source
 from nti.app.spark.common import get_redis_lock
 
 from nti.app.spark.runner import queue_job
+from nti.app.spark.runner import queue_job_immediately
 
 from nti.spark import TIMESTAMP
 
@@ -124,8 +125,8 @@ def timestamp_table_job(name):
 
 
 def create_table_timestamp_job(creator, name):
-    return queue_job(creator, timestamp_table_job,
-                     args=(name,))
+    return queue_job_immediately(creator, timestamp_table_job,
+                                 args=(name,))
 
 
 def timestamps_table_job(name):
@@ -136,5 +137,5 @@ def timestamps_table_job(name):
 
 
 def create_table_timestamps_job(creator, name):
-    return queue_job(creator, timestamps_table_job,
-                     args=(name,))
+    return queue_job_immediately(creator, timestamps_table_job,
+                                 args=(name,))

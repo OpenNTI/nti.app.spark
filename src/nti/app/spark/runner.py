@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import six
 import sys
 import time
-import simplejson
+import simplejson as json
 
 import transaction
 
@@ -67,7 +67,7 @@ def format_exception(e):
                                                            exc_traceback,
                                                            with_filenames=True))
     del exc_traceback
-    return simplejson.dumps(result, indent='\t')
+    return json.dumps(result, indent='\t')
 
 
 # jobs
@@ -105,7 +105,7 @@ def get_job_error(job_id):
     if redis is not None:
         key = job_id_error(job_id)
         result = redis.get(key)
-        result = simplejson.loads(prepare_json_text(result)) if result else None
+        result = json.loads(prepare_json_text(result)) if result else None
         if isinstance(result, six.string_types):
             result = {
                 'message': result,
@@ -211,13 +211,13 @@ def job_runner(job_id):
     if job is None:
         update_job_status(job_id, FAILED)
         update_job_error(job_id,
-                         simplejson.dumps("Job is missing"))
+                         json.dumps("Job is missing"))
         logger.error("Job %s is missing", job_id)
     else:
         run_job(job)
 
 
-def queue_job(creator, func, args=(), kws=None, site=None):
+def queue_job(creator, func, args=(), kws=None, site=None, use_transactions=True):
     site_name = get_site(site)
     # 1. create job
     job = create_spark_job(get_creator(creator), func, args, kws)
@@ -229,5 +229,10 @@ def queue_job(creator, func, args=(), kws=None, site=None):
     put_generic_job(SPARK_JOBS_QUEUE,
                     job_runner,
                     job_id=job.job_id,
-                    site_name=site_name)
+                    site_name=site_name,
+                    use_transactions=use_transactions)
     return job
+
+
+def queue_job_immediately(creator, func, args=(), kws=None, site=None):
+    return queue_job(creator, func, args, kws, site, False)
