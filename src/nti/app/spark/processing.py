@@ -73,7 +73,8 @@ def get_job_queue(name):
     return factory.get_queue(name)
 
 
-def put_generic_job(queue_name, func, job_id=None, site_name=None):
+def put_generic_job(queue_name, func, job_id=None, site_name=None,
+                    use_transactions=True):
     site_name = get_site(site_name)
     queue = get_job_queue(queue_name)
     job = create_job(execute_generic_job,
@@ -81,5 +82,5 @@ def put_generic_job(queue_name, func, job_id=None, site_name=None):
                      job_id=job_id,
                      site_name=site_name)
     job.id = job_id
-    queue.put(job)
+    queue.put(job, use_transactions)
     return job
