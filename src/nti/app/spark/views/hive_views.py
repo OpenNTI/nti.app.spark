@@ -145,7 +145,6 @@ class HiveTableTimestampView(AbstractAuthenticatedView,
 
     def __call__(self):
         # pylint: disable=no-member
-        from IPython.terminal.debugger import set_trace;set_trace()
         job = create_table_timestamp_job(self.remoteUser.username,
                                          self.context.table_name)
         result = self.monitor(job.jobId)
