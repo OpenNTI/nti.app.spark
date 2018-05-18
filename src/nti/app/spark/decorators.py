@@ -15,13 +15,15 @@ from zope import interface
 
 from nti.app.renderers.decorators import AbstractAuthenticatedRequestAwareDecorator
 
+from nti.app.spark import SPARK_JOB_ERROR
+from nti.app.spark import SPARK_JOB_RESULT
+from nti.app.spark import SPARK_JOB_STATUS
+
+from nti.app.spark.common import get_hive_href
+
 from nti.app.spark.interfaces import ISparkJob
 
 from nti.app.spark.utils import get_spark_href
-
-from nti.app.spark.views import SPARK_JOB_ERROR
-from nti.app.spark.views import SPARK_JOB_RESULT
-from nti.app.spark.views import SPARK_JOB_STATUS
 
 from nti.appserver.pyramid_authorization import has_permission
 
@@ -60,9 +62,11 @@ class _TableDecoratorMixin(AbstractAuthenticatedRequestAwareDecorator):
             links.append(Link(root_url, elements=('@@%s' % lnk,),
                               rel=lnk))
 
-    def _do_decorate_external(self, unused_context, result):
+    def _do_decorate_external(self, context, result):
+        root_url = get_hive_href(self.request) 
+        root_url += '/' + context.table_name
         links = result.setdefault(LINKS, [])
-        self._generate_links(self.LINKS, links, self.request.url)
+        self._generate_links(self.LINKS, links, root_url)
 
 
 @component.adapter(IHiveTable, IRequest)

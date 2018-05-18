@@ -25,6 +25,10 @@ from nti.app.externalization.error import raise_json_error
 
 from nti.app.renderers.interfaces import INoHrefInResponse
 
+from nti.app.spark import SPARK_JOB_ERROR
+from nti.app.spark import SPARK_JOB_RESULT
+from nti.app.spark import SPARK_JOB_STATUS
+
 from nti.app.spark import MessageFactory as _
 
 from nti.app.spark.interfaces import ACT_SPARK_JOBS
@@ -32,10 +36,6 @@ from nti.app.spark.interfaces import ACT_SPARK_JOBS
 from nti.app.spark.runner import get_job_error
 from nti.app.spark.runner import get_job_status
 from nti.app.spark.runner import get_job_result
-
-from nti.app.spark.views import SPARK_JOB_ERROR
-from nti.app.spark.views import SPARK_JOB_RESULT
-from nti.app.spark.views import SPARK_JOB_STATUS
 
 from nti.app.spark.views import SparkPathAdapter
 

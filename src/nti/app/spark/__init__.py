@@ -33,6 +33,15 @@ SPARK_JOBS_QUEUE = '++etc++spark++queue++jobs'
 
 QUEUE_NAMES = (SPARK_JOBS_QUEUE,)
 
+#: Fetch the error of a spark job
+SPARK_JOB_ERROR = 'SparkJobError'
+
+#: Fetch the status of a spark job
+SPARK_JOB_STATUS = 'SparkJobStatus'
+
+#: Fetch the result of a spark job
+SPARK_JOB_RESULT = 'SparkJobResult'
+
 # Tables
 
 #: Hive table mimetype

@@ -21,6 +21,9 @@ from zope.traversing.interfaces import ITraversable
 
 from nti.app.spark import HIVE_ADAPTER
 from nti.app.spark import SPARK_ADAPTER
+from nti.app.spark import SPARK_JOB_ERROR
+from nti.app.spark import SPARK_JOB_RESULT
+from nti.app.spark import SPARK_JOB_STATUS
 
 from nti.app.spark.interfaces import RID_SPARK
 
@@ -32,15 +35,6 @@ from nti.dataserver.authorization_acl import acl_from_aces
 from nti.dataserver.interfaces import ALL_PERMISSIONS
 
 from nti.spark.interfaces import IHiveTable
-
-#: Fetch the error of a spark job
-SPARK_JOB_ERROR = 'SparkJobError'
-
-#: Fetch the status of a spark job
-SPARK_JOB_STATUS = 'SparkJobStatus'
-
-#: Fetch the result of a spark job
-SPARK_JOB_RESULT = 'SparkJobResult'
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -69,10 +63,7 @@ class HivePathAdapter(AdapterMixin):
     __name__ = HIVE_ADAPTER
 
     def find_hive_table(self, key):
-        key = (key or '').lower()
-        for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            if table.table_name.lower() == key:
-                return table
+        return component.queryUtility(IHiveTable, name=key)
     
     def traverse(self, subpath, unused_remaining):
         table = self.find_hive_table(subpath)
