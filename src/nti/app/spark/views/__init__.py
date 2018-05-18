@@ -21,6 +21,9 @@ from zope.traversing.interfaces import ITraversable
 
 from nti.app.spark import HIVE_ADAPTER
 from nti.app.spark import SPARK_ADAPTER
+from nti.app.spark import SPARK_JOB_ERROR
+from nti.app.spark import SPARK_JOB_RESULT
+from nti.app.spark import SPARK_JOB_STATUS
 
 from nti.app.spark.interfaces import RID_SPARK
 
