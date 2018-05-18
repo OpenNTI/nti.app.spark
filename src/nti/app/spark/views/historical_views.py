@@ -15,8 +15,6 @@ from pyramid.view import view_defaults
 
 from requests.structures import CaseInsensitiveDict
 
-from zope.component import getAllUtilitiesRegisteredFor
-
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
 from nti.app.externalization.error import raise_json_error
@@ -24,9 +22,6 @@ from nti.app.externalization.error import raise_json_error
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
 from nti.app.spark import MessageFactory as _
-
-from nti.app.spark._table_utils import make_specific_table
-from nti.app.spark._table_utils import HiveTimeIndexedHistoricalTable
 
 from nti.app.spark.common import parse_timestamp
 
@@ -38,8 +33,6 @@ from nti.app.spark.jobs import create_table_timestamps_job
 
 from nti.app.spark.runner import get_job_result
 
-from nti.app.spark.views import HivePathAdapter
-
 from nti.app.spark.views.mixin_views import MonitorJobMixin
 
 from nti.common.string import is_true
@@ -48,7 +41,6 @@ from nti.dataserver import authorization as nauth
 
 from nti.spark.hive import get_timestamp
 
-from nti.spark.interfaces import IHiveTable
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
 
@@ -140,28 +132,3 @@ class HiveTableHistoricalTimestampsView(AbstractAuthenticatedView,
                              'code': 'CannotGetTimeStamps',
                          },
                          None)
-
-
-@view_config(context=HivePathAdapter)
-@view_defaults(route_name="objects.generic.traversal",
-               renderer="templates/historical.pt",
-               name="historical",
-               request_method="GET",
-               permission=nauth.ACT_READ)
-class HiveTimeIndexedHistoricalTableView(AbstractAuthenticatedView):
-
-    def get_table(self):
-        result = {}
-        for catalog in getAllUtilitiesRegisteredFor(IHiveTable):
-            if IArchivableHiveTimeIndexedHistorical.providedBy(catalog):
-                result[catalog.table_name] = catalog
-        return result
-
-    def __call__(self):
-        data = self.get_table()
-        table = make_specific_table(HiveTimeIndexedHistoricalTable,
-                                    data, self.request)
-        result = {
-            'table': table,
-        }
-        return result

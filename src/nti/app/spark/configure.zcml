@@ -11,16 +11,6 @@
 	<include package="zope.security" />
 	<include package="zope.location" />
 
-	<!-- This should happen early -->
-	<include package="nti.app.pyramid_zope" />
-
-	<include package="z3c.baseregistry" file="meta.zcml"/>
-	<include package="z3c.macro" file="meta.zcml"/>
-	<include package="z3c.macro" />
-
-	<!-- z3c:template/layout -->
-	<include package="z3c.template" file="meta.zcml" />
-
 	<include package="nti.asynchronous" />
 	<include package="nti.spark" />
 
@@ -74,17 +64,17 @@
 				for="nti.spark.interfaces.IHiveTable
 					 pyramid.interfaces.IRequest"
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
-	
+
 	<subscriber factory=".decorators._ArchivableHiveTableDecorator"
 				for="nti.spark.interfaces.IArchivableHiveTimeIndexed
 					 pyramid.interfaces.IRequest"
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
-				
+			
 	<subscriber factory=".decorators._ArchivableHiveTableHistoricalDecorator"
 				for="nti.spark.interfaces.IArchivableHiveTimeIndexedHistorical
 					 pyramid.interfaces.IRequest"
 				provides="nti.externalization.interfaces.IExternalObjectDecorator" />
-	
+
 	<subscriber factory=".decorators._SparkJobDecorator"
 				for="nti.app.spark.interfaces.ISparkJob
 					 pyramid.interfaces.IRequest"
@@ -92,11 +82,7 @@
 
 	<!-- Subscribers -->
 	<subscriber handler=".subscribers._closed_dataserver" />
-	 
-	<!-- Tables -->
-	<include package="." file="configure_hive_table.zcml" />
-	<include package="." file="configure_historical_table.zcml" />
-	
+
 	<!-- Views -->
 	<include package=".views" />
 

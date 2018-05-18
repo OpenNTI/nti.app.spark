@@ -21,19 +21,4 @@
 			 factory=".HivePathAdapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />
 
-	<!-- Macros -->
-	<z3c:macro
-		template="templates/macros.pt"
-		name="spark_head"
-		for="zope.interface.Interface"
-		view="zope.interface.Interface"
-		layer="zope.interface.Interface" />
-
-	<z3c:macro
-		template="templates/macros.pt"
-		name="spark_task_script"
-		for="zope.interface.Interface"
-		view="zope.interface.Interface"
-		layer="zope.interface.Interface" />
-
 </configure>

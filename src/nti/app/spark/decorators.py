@@ -36,7 +36,6 @@ from nti.spark.interfaces import IHiveTable
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
 from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 
-
 LINKS = StandardExternalFields.LINKS
 
 logger = __import__('logging').getLogger(__name__)
@@ -101,8 +100,8 @@ class _SparkJobDecorator(AbstractAuthenticatedRequestAwareDecorator):
     """
 
     LINKS = ( ('error,', SPARK_JOB_ERROR), 
-              ('status', SPARK_JOB_STATUS), 
-              ('result', SPARK_JOB_RESULT))
+              ('result', SPARK_JOB_RESULT),
+              ('status', SPARK_JOB_STATUS))
 
     def _predicate(self, context, unused_result):
         # pylint: disable=too-many-function-args

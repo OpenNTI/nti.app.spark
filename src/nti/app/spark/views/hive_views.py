@@ -17,9 +17,6 @@ from zope import component
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
-from nti.app.spark._table_utils import make_specific_table
-from nti.app.spark._table_utils import HiveTimeIndexedTable
-
 from nti.app.spark.jobs import create_table_reset_job
 from nti.app.spark.jobs import create_table_archive_job
 from nti.app.spark.jobs import create_generic_table_upload_job
@@ -36,7 +33,6 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.spark.interfaces import IHiveTable
-from nti.spark.interfaces import IHiveTimeIndexed
 from nti.spark.interfaces import IArchivableHiveTimeIndexed
 
 TOTAL = StandardExternalFields.TOTAL
@@ -69,7 +65,7 @@ class HiveTablesView(AbstractAuthenticatedView):
         result = LocatedExternalDict()
         result[ITEMS] = items = []
         for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            items.append(to_external_object(table, name="summary"))
+            items.append(to_external_object(table))
         result[TOTAL] = result[ITEM_COUNT] = len(items)
         result.__name__ = self.request.view_name
         result.__parent__ = self.request.context
@@ -126,27 +122,3 @@ class HiveTableUploadView(AbstractHiveUploadView):
     def create_upload_job(self, creator, target, unused_timestamp,
                           unused_archive, unused_strict):
         return create_generic_table_upload_job(creator, target, self.context)
-
-
-@view_config(context=HivePathAdapter)
-@view_defaults(route_name="objects.generic.traversal",
-               renderer="templates/current.pt",
-               name="current",
-               request_method="GET",
-               permission=nauth.ACT_READ)
-class HiveTimeIndexedTableView(AbstractAuthenticatedView):
-
-    def get_table(self):
-        result = {}
-        for catalog in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            if IHiveTimeIndexed.providedBy(catalog):
-                result[catalog.table_name] = catalog
-        return result
-
-    def __call__(self):
-        data = self.get_table()
-        table = make_specific_table(HiveTimeIndexedTable, data, self.request)
-        result = {
-            'table': table,
-        }
-        return result
