@@ -60,10 +60,7 @@ class HivePathAdapter(AdapterMixin):
     __name__ = HIVE_ADAPTER
 
     def find_hive_table(self, key):
-        key = (key or '').lower()
-        for table in component.getAllUtilitiesRegisteredFor(IHiveTable):
-            if table.table_name.lower() == key:
-                return table
+        return component.queryUtility(IHiveTable, name=key)
     
     def traverse(self, subpath, unused_remaining):
         table = self.find_hive_table(subpath)
