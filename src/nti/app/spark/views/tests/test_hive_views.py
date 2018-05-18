@@ -92,12 +92,6 @@ class TestHiveViews(ApplicationLayerTest):
             assert_that(res.json_body,
                         has_entries('database', 'fake',
                                     'table', 'fake_historical'))
-            
-            self.testapp.get('/dataserver2/spark/hive/@@current',
-                             status=200)
-            
-            self.testapp.get('/dataserver2/spark/hive/@@historical',
-                             status=200)
         finally:
             gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
                                   'fake_table')
