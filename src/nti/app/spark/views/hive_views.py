@@ -17,12 +17,22 @@ from zope import component
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
+from nti.app.externalization.error import raise_json_error
+
+from nti.app.spark import MessageFactory as _
+
+from nti.app.spark.interfaces import SUCCESS
+
 from nti.app.spark.jobs import create_table_reset_job
 from nti.app.spark.jobs import create_table_archive_job
+from nti.app.spark.jobs import create_table_timestamp_job
 from nti.app.spark.jobs import create_generic_table_upload_job
+
+from nti.app.spark.runner import get_job_result
 
 from nti.app.spark.views import HivePathAdapter
 
+from nti.app.spark.views.mixin_views import MonitorJobMixin
 from nti.app.spark.views.mixin_views import AbstractHiveUploadView
 
 from nti.dataserver import authorization as nauth
@@ -122,3 +132,29 @@ class HiveTableUploadView(AbstractHiveUploadView):
     def create_upload_job(self, creator, target, unused_timestamp,
                           unused_archive, unused_strict):
         return create_generic_table_upload_job(creator, target, self.context)
+
+
+@view_config(name="timestamp")
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='rest',
+               request_method='GET',
+               context=IArchivableHiveTimeIndexed,
+               permission=nauth.ACT_READ)
+class HiveTableTimestampView(AbstractAuthenticatedView,
+                             MonitorJobMixin):
+
+    def __call__(self):
+        # pylint: disable=no-member
+        from IPython.terminal.debugger import set_trace;set_trace()
+        job = create_table_timestamp_job(self.remoteUser.username,
+                                         self.context.table_name)
+        result = self.monitor(job.jobId)
+        if result == SUCCESS:
+            return get_job_result(job.jobId) or hexc.HTTPNoContent()
+        raise_json_error(self.request,
+                         hexc.HTTPUnprocessableEntity,
+                         {
+                             'message': _(u"Cannot get timestamp"),
+                             'code': 'CannotGetTimeStamp',
+                         },
+                         None)
