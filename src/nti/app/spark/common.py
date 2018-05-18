@@ -25,6 +25,9 @@ from zope import component
 
 from zope.component.hooks import getSite
 
+from nti.app.spark import HIVE_ADAPTER
+from nti.app.spark import SPARK_ADAPTER
+
 from nti.common.io import extract_all
 
 from nti.coremetadata.interfaces import IRedisClient
@@ -126,3 +129,8 @@ def get_ds2(request=None):
     except AttributeError:  # in unit test we may see this
         result = None
     return result or "dataserver2"
+
+
+def get_hive_href(request=None):
+    root = get_ds2(request)
+    return '/%s/%s/%s' % (root, SPARK_ADAPTER, HIVE_ADAPTER)
