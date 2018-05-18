@@ -80,7 +80,7 @@ class _ArchivableHiveTableDecorator(_TableDecoratorMixin):
     Decorate Hive table operations links onto archivable hive table objects
     on externalization
     """
-    LINKS = ('reset', 'archive')
+    LINKS = ('reset', 'archive', 'timestamp')
 
 
 @component.adapter(IArchivableHiveTimeIndexedHistorical, IRequest)
@@ -89,7 +89,7 @@ class _ArchivableHiveTableHistoricalDecorator(_TableDecoratorMixin):
     Decorate Hive table operations links onto historical archivable hive table objects
     on externalization
     """
-    LINKS = ('unarchive',)
+    LINKS = ('unarchive', 'timestamps')
 
 
 @component.adapter(ISparkJob, IRequest)
@@ -99,9 +99,9 @@ class _SparkJobDecorator(AbstractAuthenticatedRequestAwareDecorator):
     Decorate spark job links
     """
 
-    LINKS = ( ('error,', SPARK_JOB_ERROR), 
-              ('result', SPARK_JOB_RESULT),
-              ('status', SPARK_JOB_STATUS))
+    LINKS = (('error,', SPARK_JOB_ERROR),
+             ('result', SPARK_JOB_RESULT),
+             ('status', SPARK_JOB_STATUS))
 
     def _predicate(self, context, unused_result):
         # pylint: disable=too-many-function-args
@@ -111,7 +111,7 @@ class _SparkJobDecorator(AbstractAuthenticatedRequestAwareDecorator):
     def _do_decorate_external(self, context, result):
         spark_url = get_spark_href(self.request)
         links = result.setdefault(LINKS, [])
-        params =  {'jobId': context.JobId}
+        params = {'jobId': context.JobId}
         for rel, name in self.LINKS:
             result = links.append(Link(spark_url, elements=(name,), rel=rel,
                                        params=params, method='GET'))
