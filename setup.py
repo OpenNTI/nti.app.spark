@@ -59,7 +59,6 @@ setup(
     install_requires=[
         'setuptools',
         'gevent',
-        'nti.app.pyramid_zope',
         'nti.asynchronous',
         'nti.base',
         'nti.common',
@@ -80,9 +79,6 @@ setup(
         'simplejson',
         'six',
         'transaction',
-        'z3c.baseregistry',
-        'z3c.macro',
-        'z3c.table',
         'zope.cachedescriptors',
         'zope.component',
         'zope.container',
