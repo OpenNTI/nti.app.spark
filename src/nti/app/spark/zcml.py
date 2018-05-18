@@ -34,7 +34,7 @@ class ImmediateQueueRunner(object):
     desired for test or dev mode.
     """
 
-    def put(self, job):
+    def put(self, job, *unused_args, **unused_kwargs):
         job()
 
 
