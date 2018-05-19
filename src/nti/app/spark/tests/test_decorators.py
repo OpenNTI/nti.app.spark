@@ -43,23 +43,24 @@ class TestHiveDecorators(ApplicationLayerTest):
 
         fake = FakeTable("fake", "fake.fake")
         gsm = component.getGlobalSiteManager()
-        gsm.registerUtility(fake, IFakeTable, "fake.fake")
-
-        spark = component.getUtility(IHiveSparkInstance)
-        spark.create_database('fake')
-        spark.hive.sql('create table fake.fake(x int)')
-
-        res = self.testapp.get('/dataserver2/spark/hive/fake.fake',
-                               status=200)
-
-        assert_that(res.json_body,
-                    has_entries('Links',
-                                has_item(has_entry('rel', 'archive'))))
-        assert_that(res.json_body,
-                    has_entries('Links',
-                                has_item(has_entry('rel', 'reset'))))
-        assert_that(res.json_body,
-                    has_entries('Links',
-                                has_item(has_entry('rel', 'upload'))))
-
-        gsm.unregisterUtility(fake, IFakeTable, "fake.fake")
+        try:
+            gsm.registerUtility(fake, IFakeTable, "fake.fake")
+    
+            spark = component.getUtility(IHiveSparkInstance)
+            spark.create_database('fake')
+            spark.hive.sql('create table fake.fake(x int)')
+    
+            res = self.testapp.get('/dataserver2/spark/hive/fake.fake',
+                                   status=200)
+    
+            assert_that(res.json_body,
+                        has_entries('Links',
+                                    has_item(has_entry('rel', 'archive'))))
+            assert_that(res.json_body,
+                        has_entries('Links',
+                                    has_item(has_entry('rel', 'reset'))))
+            assert_that(res.json_body,
+                        has_entries('Links',
+                                    has_item(has_entry('rel', 'upload'))))
+        finally:
+            gsm.unregisterUtility(fake, IFakeTable, "fake.fake")
