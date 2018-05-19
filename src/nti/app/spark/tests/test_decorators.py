@@ -43,7 +43,7 @@ class TestHiveDecorators(ApplicationLayerTest):
 
         fake = FakeTable("fake", "fake.fake")
         gsm = component.getGlobalSiteManager()
-        gsm.registerUtility(fake, IFakeTable)
+        gsm.registerUtility(fake, IFakeTable, "fake.fake")
 
         spark = component.getUtility(IHiveSparkInstance)
         spark.create_database('fake')
@@ -58,9 +58,8 @@ class TestHiveDecorators(ApplicationLayerTest):
         assert_that(res.json_body,
                     has_entries('Links',
                                 has_item(has_entry('rel', 'reset'))))
-
         assert_that(res.json_body,
                     has_entries('Links',
                                 has_item(has_entry('rel', 'upload'))))
 
-        gsm.unregisterUtility(fake, IFakeTable)
+        gsm.unregisterUtility(fake, IFakeTable, "fake.fake")
