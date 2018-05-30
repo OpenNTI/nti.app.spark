@@ -41,6 +41,7 @@ class FakeTable(object):
     database = 'fake'
     table_name = 'fake'
 
+    rows = None
     timestamp = 10
     timestamps = (10,)
 
@@ -69,6 +70,17 @@ class TestJobs(ApplicationLayerTest):
         with open(self.students_file, "r") as fp:
             return fp.read()
 
+    def setUp(self):
+        ApplicationLayerTest.setUp(self)
+        self.fake_table = FakeTable()
+        gsm = component.getGlobalSiteManager()
+        gsm.registerUtility(self.fake_table, IHiveTable, 'fake_table')
+
+    def tearDown(self):
+        ApplicationLayerTest.tearDown(self)
+        gsm = component.getGlobalSiteManager()
+        gsm.unregisterUtility(self.fake_table, IHiveTable, 'fake_table')
+
     @WithSharedApplicationMockDS
     @fudge.patch('nti.app.spark.jobs.get_redis_lock')
     def test_create_upload_job(self, mock_grl):
@@ -84,53 +96,29 @@ class TestJobs(ApplicationLayerTest):
     @fudge.patch('nti.app.spark.jobs.get_redis_lock',
                  'nti.spark.spark.HiveSparkInstance.drop_partition')
     def test_create_drop_partition_job(self, mock_grl, mock_dp):
-        fake_table = FakeTable()
         mock_dp.is_callable().returns_fake()
         mock_grl.is_callable().returns(NoOpCM())
-        try:
-            gsm = component.getGlobalSiteManager()
-            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
-            job = create_drop_partition_job("pgreazy", 'fake_table', 10)
-            assert_that(job, is_not(none()))
-        finally:
-            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+        job = create_drop_partition_job("pgreazy", 'fake_table', 10)
+        assert_that(job, is_not(none()))
 
     @WithSharedApplicationMockDS
     @fudge.patch('nti.app.spark.jobs.get_redis_lock')
     def test_create_archive_job(self, mock_grl):
-        fake_table = FakeTable()
         mock_grl.is_callable().returns(NoOpCM())
-        try:
-            gsm = component.getGlobalSiteManager()
-            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
-            job = create_table_archive_job("pgreazy", 'fake_table')
-            assert_that(job, is_not(none()))
-        finally:
-            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+        job = create_table_archive_job("pgreazy", 'fake_table')
+        assert_that(job, is_not(none()))
 
     @WithSharedApplicationMockDS
     @fudge.patch('nti.app.spark.jobs.get_redis_lock')
     def test_create_timestamps_job(self, mock_grl):
-        fake_table = FakeTable()
         mock_grl.is_callable().returns(NoOpCM())
-        try:
-            gsm = component.getGlobalSiteManager()
-            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
-            for m in (create_table_timestamp_job, create_table_timestamps_job):
-                job = m("pgreazy", 'fake_table')
-                assert_that(job, is_not(none()))
-        finally:
-            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+        for m in (create_table_timestamp_job, create_table_timestamps_job):
+            job = m("pgreazy", 'fake_table')
+            assert_that(job, is_not(none()))
 
     @WithSharedApplicationMockDS
     @fudge.patch('nti.app.spark.jobs.get_redis_lock')
     def test_create_table_empty_job(self, mock_grl):
-        fake_table = FakeTable()
         mock_grl.is_callable().returns(NoOpCM())
-        try:
-            gsm = component.getGlobalSiteManager()
-            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
-            job = create_table_empty_job("pgreazy", "fake_table")
-            assert_that(job, is_not(none()))
-        finally:
-            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+        job = create_table_empty_job("pgreazy", "fake_table")
+        assert_that(job, is_not(none()))
