@@ -139,3 +139,15 @@ def timestamps_table_job(name):
 def create_table_timestamps_job(creator, name):
     return queue_job_immediately(creator, timestamps_table_job,
                                  args=(name,))
+
+
+def empty_table_job(name):
+    context = component.getUtility(IHiveTable, name)
+    table_lock = LOCK % (context.database, context.table_name)
+    with get_redis_lock(table_lock):
+        return context.rows is None
+
+
+def create_table_empty_job(creator, name):
+    return queue_job_immediately(creator, empty_table_job,
+                                 args=(name,))
