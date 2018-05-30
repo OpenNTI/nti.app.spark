@@ -168,7 +168,7 @@ class HiveTableTimestampView(AbstractAuthenticatedView,
                permission=nauth.ACT_READ)
 class HiveTableEmptyView(AbstractAuthenticatedView,
                          MonitorJobMixin):
-    
+
     def __call__(self):
         # pylint: disable=no-member
         job = create_table_empty_job(self.remoteUser.username,
@@ -183,4 +183,3 @@ class HiveTableEmptyView(AbstractAuthenticatedView,
                              'code': 'CannotAccessTableState',
                          },
                          None)
-

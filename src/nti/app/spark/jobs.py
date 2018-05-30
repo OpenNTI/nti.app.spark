@@ -29,8 +29,6 @@ from nti.spark.utils import get_timestamp
 
 logger = __import__('logging').getLogger(__name__)
 
-# generic upload job
-
 
 LOCK = "++etc++%s++%s++lock"
 

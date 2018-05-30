@@ -38,10 +38,11 @@ from nti.spark.interfaces import IArchivableHiveTimeIndexedHistorical
 @interface.implementer(IArchivableHiveTimeIndexed)
 class FakeTable(object):
 
+    rows = None
     timestamp = 10
     external = True
     database = 'fake'
-    rows = None
+
     __name__ = table_name = 'fake_table'
 
     def reset(self):
@@ -56,7 +57,7 @@ class FakeHistorical(FakeTable):
 
     timestamps = (10, 11)
     __name__ = table_name = 'fake_historical'
-    
+
     def unarchive(self, *args):
         pass
 
@@ -101,7 +102,6 @@ class TestHiveViews(ApplicationLayerTest):
                                   'fake_table')
             gsm.unregisterUtility(fake_historical, IArchivableHiveTimeIndexedHistorical,
                                   'fake_historical')
-
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     @fudge.patch('nti.app.spark.jobs.get_redis_lock')
@@ -161,7 +161,7 @@ class TestHiveViews(ApplicationLayerTest):
             mock_mon.is_callable().returns(SUCCESS)
             self.testapp.get('/dataserver2/spark/hive/fake_table/@@timestamp',
                              status=200)
-            
+
             mock_mon.is_callable().returns(FAILED)
             self.testapp.get('/dataserver2/spark/hive/fake_table/@@timestamp',
                              status=422)
@@ -182,11 +182,11 @@ class TestHiveViews(ApplicationLayerTest):
             mock_mon.is_callable().returns(SUCCESS)
             self.testapp.get('/dataserver2/spark/hive/fake_table/@@empty',
                              status=200)
-            
+
             mock_mon.is_callable().returns(FAILED)
             self.testapp.get('/dataserver2/spark/hive/fake_table/@@empty',
                              status=422)
-        
+
         finally:
             gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
                                   'fake_table')
