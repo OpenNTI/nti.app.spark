@@ -175,7 +175,8 @@ class HiveTableEmptyView(AbstractAuthenticatedView,
                                      self.context.table_name)
         result = self.monitor(job.jobId)
         if result == SUCCESS:
-            return get_job_result(job.jobId) or hexc.HTTPNoContent()
+            result = get_job_result(job.jobId)
+            return result if result is not None else hexc.HTTPNoContent()
         raise_json_error(self.request,
                          hexc.HTTPUnprocessableEntity,
                          {
