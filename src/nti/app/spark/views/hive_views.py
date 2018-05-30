@@ -23,6 +23,7 @@ from nti.app.spark import MessageFactory as _
 
 from nti.app.spark.interfaces import SUCCESS
 
+from nti.app.spark.jobs import create_table_empty_job
 from nti.app.spark.jobs import create_table_reset_job
 from nti.app.spark.jobs import create_table_archive_job
 from nti.app.spark.jobs import create_table_timestamp_job
@@ -157,3 +158,29 @@ class HiveTableTimestampView(AbstractAuthenticatedView,
                              'code': 'CannotGetTimeStamp',
                          },
                          None)
+
+
+@view_config(name="empty")
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='rest',
+               request_method='GET',
+               context=IArchivableHiveTimeIndexed,
+               permission=nauth.ACT_READ)
+class HiveTableEmptyView(AbstractAuthenticatedView,
+                         MonitorJobMixin):
+    
+    def __call__(self):
+        # pylint: disable=no-member
+        job = create_table_empty_job(self.remoteUser.username,
+                                     self.context.table_name)
+        result = self.monitor(job.jobId)
+        if result == SUCCESS:
+            return get_job_result(job.jobId) or hexc.HTTPNoContent()
+        raise_json_error(self.request,
+                         hexc.HTTPUnprocessableEntity,
+                         {
+                             'message': _(u"Cannot access table state"),
+                             'code': 'CannotAccessTableState',
+                         },
+                         None)
+

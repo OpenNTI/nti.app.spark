@@ -41,6 +41,7 @@ class FakeTable(object):
     timestamp = 10
     external = True
     database = 'fake'
+    rows = None
     __name__ = table_name = 'fake_table'
 
     def reset(self):
@@ -164,6 +165,28 @@ class TestHiveViews(ApplicationLayerTest):
             mock_mon.is_callable().returns(FAILED)
             self.testapp.get('/dataserver2/spark/hive/fake_table/@@timestamp',
                              status=422)
+        finally:
+            gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
+                                  'fake_table')
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    @fudge.patch('nti.app.spark.jobs.get_redis_lock',
+                 'nti.app.spark.views.hive_views.HiveTableEmptyView.monitor')
+    def test_empty(self, mock_grl, mock_mon):
+        fake_table = FakeTable()
+        mock_grl.is_callable().returns(NoOpCM())
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_table, IArchivableHiveTimeIndexed,
+                                'fake_table')
+            mock_mon.is_callable().returns(SUCCESS)
+            self.testapp.get('/dataserver2/spark/hive/fake_table/@@empty',
+                             status=200)
+            
+            mock_mon.is_callable().returns(FAILED)
+            self.testapp.get('/dataserver2/spark/hive/fake_table/@@empty',
+                             status=422)
+        
         finally:
             gsm.unregisterUtility(fake_table, IArchivableHiveTimeIndexed,
                                   'fake_table')

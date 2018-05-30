@@ -17,6 +17,7 @@ import fudge
 
 from zope import component
 
+from nti.app.spark.jobs import create_table_empty_job
 from nti.app.spark.jobs import create_table_archive_job
 from nti.app.spark.jobs import create_drop_partition_job
 from nti.app.spark.jobs import create_table_timestamp_job
@@ -118,5 +119,18 @@ class TestJobs(ApplicationLayerTest):
             for m in (create_table_timestamp_job, create_table_timestamps_job):
                 job = m("pgreazy", 'fake_table')
                 assert_that(job, is_not(none()))
+        finally:
+            gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
+
+    @WithSharedApplicationMockDS
+    @fudge.patch('nti.app.spark.jobs.get_redis_lock')
+    def test_create_table_empty_job(self, mock_grl):
+        fake_table = FakeTable()
+        mock_grl.is_callable().returns(NoOpCM())
+        try:
+            gsm = component.getGlobalSiteManager()
+            gsm.registerUtility(fake_table, IHiveTable, 'fake_table')
+            job = create_table_empty_job("pgreazy", "fake_table")
+            assert_that(job, is_not(none()))
         finally:
             gsm.unregisterUtility(fake_table, IHiveTable, 'fake_table')
