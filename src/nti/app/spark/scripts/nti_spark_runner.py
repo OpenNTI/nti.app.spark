@@ -48,6 +48,7 @@ class Constructor(Processor):
         setattr(args, 'library', True)
         setattr(args, 'priority', True)
         setattr(args, 'trx_retries', 9)
+        setattr(args, 'max_sleep_time', 20)
         setattr(args, 'queue_names', QUEUE_NAMES)
         Processor.process_args(self, args)
 
